@@ -1,0 +1,196 @@
+#+title: Readme
+#+author: Marco Túlio
+#+email: marcotulio2709@usp.br
+
+* Introdução
+Será necessário criar um programa que realiza a alocação de voôs. Ele seria de uso único, ou seja, apenas alocaria 1 viagem de avião apenas. Todo projeto tem que ser escrito em C e devemos usar apenas o que vimos em sala de aula.
+O programa consistem em algumas operações básicas, que serão descritas a seguir. Todas as operações terão que ser utilizadas por linha de comando.
+Nosso programa será avaliado em documentação, o quanto ele se adequa ao pedido, ou seja, o quanto acertamos, eficiência e documentação interna. Particulamente eu sugeriria o uso do Doxygen para a documentação interna, de forma que em cada função teriamos algo como o seguinte:
+
+#+begin_src C
+/**
+ ,* @brief      Descrição da função de forma breve
+ ,*
+ ,* @details    Descrição da função de forma mais detalhada, explicando
+ ,*             o que ela faz, como ela faz e porque ela faz.
+ ,*
+ ,* @param      param1  Descrição do primeiro parâmetro
+ ,* @param      param2  Descrição do segundo parâmetro, etc
+ ,*
+ ,* @return     Descrição do retorno da função
+ ,*/
+#+end_src
+
+** Utilização do Git
+A utilização do Git pode ser feita para atualizarmos nosso projeto, de forma que todos possam trabalhar em cima do mesmo código. Aqui teremos esse README.org que também terá atualizações de como está o andamento do projeto e do que vamos fazer.
+
+* Operações
+O programa terá as seguintes operações:
+
+** Abertura do Voô
+Essa operação consiste em abrir um voô, ou seja, vamos colocar quantos assentos temos disponíveis, bem como o valor da passagem econômica e da passagem executiva.
+A sintaxe para essa operação é a seguinte:
+
+#+begin_src sh
+AV <número de assentos> <valor econômico> <valor executivo>
+#+end_src
+
+- Número de assentos :: é um inteiro positivo
+- Valor econômico e valor executivo :: são números decimais positivos.
+
+Não espera que aja uma saída.
+
+
+** Capacidade da aeronave
+Essa operação consiste em mostrar a capacidade da aeronave, ou seja, quantos assentos estão disponíveis. Deve ser chamada apenas uma vez, antes da venda da primeira passagem. Não deve ser invocada mais. Retorna um inteiro, correspondente ao número de assentos disponíveis.
+
+** Opções do Sistema
+Existem 4 opções do sistema, que são:
+*** Realizar Reserva <<realizar-reserva>>
+Comando que realiza a reserva de passagem. A sintaxe para essa operação é a seguinte:
+#+begin_src sh
+RR <nome> <sobrenome> <cpf> <data viagem> <número voo> <número do assento> <classe> <valor> <aeroporto de origem> <aeroporto de destino>
+#+end_src
+Onde
+
+- Nome e sobrenome :: são strings, não possuem tamanho máximo.
+- CPF :: é uma string de 11 caracteres numéricos. Ele será dado formatado, ou seja, com pontos e traços.
+- Data viagem :: Númericos dados no formato DD MM AAAA. Serão separados por espaços.
+- Número voo :: Uma string de tamanho 4. Dado na forma ~VXXX~, onde ~X~ é um dígito.
+- Número do Assento ::  Uma string com 1 caractere e um número entre 01 e o maior número de assentos. Dado na Forma ~NXX~, onde ~N~ é um caractere e ~X~ é um dígito.
+- Classe :: Duas opções, ~economica~ ou ~executiva~.
+- Valor :: Valor correspondente ao valor da passagem. Será um número decimal positivo.
+- Aeroporto de origem e Destino :: Uma cadeia de 3 caracteres, para cada, na forma ~NNN~, onde ~N~ é um caractere.
+
+Não espera que aja uma saída.
+*** Consultar Reserva
+Comando que consulta a reserva de passagem, dado o CPF. A sintaxe para essa operação é a seguinte:
+#+begin_src sh
+CR <cpf>
+#+end_src
+Onde
+
+- CPF :: é uma string de 11 caracteres numéricos. Ele será dado formatado, ou seja, com pontos e traços.
+
+A saída será a seguinte:
+
+#+begin_src sh
+<CPF>
+<Nome> <Sobrenome>
+<data viagem>
+Voo: <número voo>
+Assento: <número do assento>
+Classe: <classe>
+Trecho: <aeroporto de origem>  <aeroporto de destino>
+Valor: <valor>
+--------------------------------------------------
+#+end_src
+
+A data impressa tera que ser no formato DD/MM/AAAA.
+
+*** Modificar Reserva
+Modifica o assento da reserva de passagem, dado o CPF. A sintaxe para essa operação é a seguinte:
+
+#+begin_src sh
+MR <nome> <sobrenome> <cpf> <assento>
+#+end_src
+
+Onde
+
+- Nome e sobrenome :: são strings, não possuem tamanho máximo.
+- CPF :: é uma string de 11 caracteres numéricos. Ele será dado formatado, ou seja, com pontos e traços.
+- Assento ::  Uma string com 1 caractere e um número entre 01 e o maior número de assentos. Dado na Forma ~NXX~, onde ~N~ é um caractere e ~X~ é um dígito.
+
+A saída será a seguinte:
+
+#+begin_src sh
+Reserva Modificada:
+<CPF>
+<Nome> <Sobrenome>
+<data viagem>
+Voo: <número voo>
+Assento: <número do assento>
+Classe: <classe>
+Trecho: <aeroporto de origem>  <aeroporto de destino>
+Valor: <valor>
+--------------------------------------------------
+#+end_src
+
+*** Cancelar Reserva
+Cancela a reserva de passagem, dado o CPF. Ela apaga todas as informações relativas do CPF indicado. A sintaxe para essa operação é a seguinte:
+
+#+begin_src sh
+CA <cpf>
+#+end_src
+
+Onde
+
+- CPF :: é uma string de 11 caracteres numéricos. Ele será dado formatado, ou seja, com pontos e traços.
+
+Não espera que aja uma saída.
+
+** Fechamento do Voô
+
+Quando fechado, o sistema deve imprimir a lista de passageiros com as seguintes informações:
+
+- Nome
+- Sobrenome
+- CPF
+- Assento
+- Valor total
+
+Caso atinja-se a capacidade máxima da aeronave, o sistema deve fechar automaticamente o voo. Um voo fechado não aceita qualquer modificação, seja ela de reserva, cancelamento. Caso tenha-se tentado fazer alguma modificação, o sistema deve retornar uma mensagem de erro, que é a seguinte:
+
+#+begin_src sh
+Voo Fechado!
+
+#+end_src
+
+O encerramento do voo é feito com o comando:
+
+#+begin_src sh
+FV
+#+end_src
+
+Caso o comando seja executado com sucesso, o sistema deve retornar a seguinte mensagem:
+
+#+begin_src sh
+Voo Fechado!
+
+<CPF>
+<Nome> <Sobrenome>
+<assento>
+
+.
+.
+.
+
+<CPF>
+<Nome> <Sobrenome>
+<assento>
+
+Valor Total: <valor total>
+--------------------------------------------------
+#+end_src
+** Fechamento do dia
+Exibe a quantidade de reservas efetuadas, valor total até o momento e encerra o programa. Ele permite, ainda, que consiga-se fazer modificações nas reservas, incluindo novas reservas, cancelamentos e modificações.
+
+A sintaxe para essa operação é a seguinte:
+
+#+begin_src sh
+FD
+#+end_src
+
+A saída será a seguinte:
+
+#+begin_src sh
+Fechamento do dia:
+Quantidade de Reservas: <quantidade de reservas>
+Posição: <valor até o momento>
+--------------------------------------------------
+#+end_src
+
+Todas as saídas tem que terminar com 50 traços.
+
+* Ideias
+Imagino eu que o programa terá que ter uma estrutura de dados para armazenar as informações dos voos, bem como das reservas. Podemos armazenar em algum arquivo que escrevemos e, uma vez com o voo fechado, podemos excluir esse aquivo.
