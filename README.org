@@ -2,6 +2,27 @@
 #+author: Marco Túlio
 #+email: marcotulio2709@usp.br
 
+
+* DEADLINE
+DEADLINE: <2024-06-13 Thu>
+
+* Lista de Tarefas
+** DONE Criar o README
+** TODO Criar o arquivo de código fonte
+*** TODO Criar a estrutura de dados
+*** TODO Criar as funções de abertura e fechamento do voo
+*** TODO Criar as funções de reserva
+*** TODO Criar as funções de consulta
+*** TODO Criar as funções de modificação
+*** TODO Criar as funções de cancelamento
+*** TODO Criar as funções de fechamento do voo
+*** TODO Criar as funções de fechamento do dia
+*** TODO Criar as funções de capacidade da aeronave
+*** TODO Criar as funções de opções do sistema
+** TODO Criar o arquivo Makefile
+** TODO Criar o arquivo de documentação
+** TODO Criar o arquivo de testes
+
 * Introdução
 Será necessário criar um programa que realiza a alocação de voôs. Ele seria de uso único, ou seja, apenas alocaria 1 viagem de avião apenas. Todo projeto tem que ser escrito em C e devemos usar apenas o que vimos em sala de aula.
 O programa consistem em algumas operações básicas, que serão descritas a seguir. Todas as operações terão que ser utilizadas por linha de comando.
@@ -19,6 +40,27 @@ Nosso programa será avaliado em documentação, o quanto ele se adequa ao pedid
  ,*
  ,* @return     Descrição do retorno da função
  ,*/
+#+end_src
+
+Como exemplo, podemos ter a seguinte função:
+
+#+begin_src C
+int soma(int a, int b) {
+    /**
+     ,* @brief      Soma de dois valores
+     ,*
+     ,* @details    Realiza a soma de dois valores inteiros,
+     ,*            retornando o resultado da operação. Os
+     ,* números são passados por valores, não tendo modificação
+     ,* nos valores originais.
+     ,*
+     ,* @param      int a: Primeiro valor a ser somado
+     ,* @param      int b: Segundo valor a ser somado
+     ,*
+     ,* @return     Retorna um inteiro com o resultado da soma
+     ,*/
+    return a + b;
+}
 #+end_src
 
 ** Utilização do Git
@@ -143,9 +185,8 @@ Caso atinja-se a capacidade máxima da aeronave, o sistema deve fechar automatic
 
 #+begin_src sh
 Voo Fechado!
-
 #+end_src
-
+Não sei se esse argumento de cima é necessário mesmo. Não entendi se precisa dele ou não.
 O encerramento do voo é feito com o comando:
 
 #+begin_src sh
