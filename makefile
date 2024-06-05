@@ -16,7 +16,7 @@ main: main.c
 
 
 clean:
-	$rm -f main *.txt *.o
+	@rm -f main *.txt *.o
 
 
 # end
