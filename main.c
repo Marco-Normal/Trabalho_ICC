@@ -28,6 +28,7 @@
  * DONE: Implementar a função de impressão de um passageiro
  * DONE: Implementar a função de alocação de vetores
  * DONE: Implementar a função de realocação de vetores
+ * DONE: Cancelar reserva
  *
  *
  * */
@@ -64,34 +65,44 @@ void *allocate_vet(int N);
 void entrada_opcao_menu(char *comando);
 void abertura_voo(void);
 passageiro registrar_passageiro(passageiro novo_passageiro);
+int achar_passageiro(passageiro *tot_passageiros, int num_passageiros,
+                     char *cpf);
 void modificar_reserva(passageiro *tot_passageiros, int num_passageiros);
 void printf_passageiro(passageiro);
+void consulta_passageiro(passageiro *tot_passageiros, int num_passageiros);
+passageiro *cancelar_reserva(passageiro *tot_passageiros, int num_passageiros);
 
 int main(void) {
   char comando[3];
   int flag = 1;
   int num_passageiros = 0;
-  passageiro *tot_passageiros;
+  passageiro *tot_passageiros =
+      (passageiro *)allocate_vet(0 * sizeof(passageiro)); // inicializa vetor
   while (flag) {
     entrada_opcao_menu(comando);
     if (strcmp(comando, "AV") == 0) {
       abertura_voo();
-    } else if (strcmp(comando, "RR") == 0) {
-      num_passageiros++;
+    } else if (strcmp(comando, "RR") == 0) { // TODO Flag de voo
+      num_passageiros++; // Pode ser uma boa colocar isso numa função
       printf("%d\n", num_passageiros);
       tot_passageiros = (passageiro *)reallocate_vet(
           tot_passageiros, num_passageiros * sizeof(passageiro));
       tot_passageiros[num_passageiros - 1] =
           registrar_passageiro(tot_passageiros[num_passageiros - 1]);
-    } else if (strcmp(comando, "EX") == 0) {
+    } else if (strcmp(comando, "EX") == 0) { // Comando de saída
       flag = 0;
 
-    } else if (strcmp(comando, "MR") == 0) {
+    } else if (strcmp(comando, "MR") == 0) { // Comando modificar voo
       modificar_reserva(tot_passageiros, num_passageiros);
+    } else if (strcmp(comando, "CR") == 0) { // Comando consultar reserva
+      consulta_passageiro(tot_passageiros, num_passageiros);
+    } else if (strcmp(comando, "CA") == 0) { // Comando cancelar reserva
+      tot_passageiros = cancelar_reserva(tot_passageiros, num_passageiros);
+      num_passageiros--;
     }
   }
-
-  printf_passageiro(tot_passageiros[0]);
+  printf_passageiro(tot_passageiros[0]); // Teste
+  printf("%d\n", num_passageiros);
 }
 void *allocate_vet(int N) {
   /**
@@ -134,10 +145,11 @@ void abertura_voo(void) {
    *
    * @details    Abre um voo, pedindo os dados
    * necessários para preencher o arquivo voo.txt.
-   *
+   * Provavelmente seria legal colocar como um define o
+   * nome do arquivo.
    * @param      void
    *
-   * @return     void
+   * @return     void, escreve no arquivo voo.txt
    */
 
   FILE *arquivo;
@@ -160,7 +172,9 @@ void *reallocate_vet(void *vetor, int N) {
    * @details    Realoca um espaço de memória de tamanho
    * N, de forma que podemos fazer um casting para qualquer
    * outro tipo de ponteiro. Isso evitar ter que fazer
-   * uma função para alocar char, int, etc.
+   * uma função para alocar char, int, etc. Vai ser
+   * necessário fazer um casting para o tipo de ponteiro
+   * que queremos. Útil na hora de cancelar uma reserva.
    *
    * @param      Int N, número de bites que vamos alocar
    *
@@ -177,7 +191,10 @@ passageiro registrar_passageiro(passageiro novo_passageiro) {
    * @brief      Registra um passageiro
    *
    * @details    Registra um passageiro, pedindo os dados
-   * necessários para preencher a struct passageiro.
+   * necessários para preencher a struct passageiro. A função
+   * ta bem feia quanto ao preenchimento da struct, mas ela funciona.
+   * Acho que seria legal colocar um define para o tamanho dos
+   * vetores. Não termos número mágicos no código.
    *
    * @param      passageiro, struct passageiro que vamos preencher
    *
@@ -198,8 +215,9 @@ void printf_passageiro(passageiro passageiro) {
   /**
    * @brief      Printa um passageiro
    *
-   * @details    Printa um passageiro, pedindo os dados
-   * necessários para preencher a struct passageiro.
+   * @details    Printa um passageiro, no formato
+   * especificado no enunciado do trabalho. A função
+   * é bem simples, só aceita um passageiro por vez.
    *
    * @param      passageiro, struct passageiro que vamos printar
    *
@@ -222,28 +240,129 @@ void printf_passageiro(passageiro passageiro) {
 
 void modificar_reserva(passageiro *tot_passageiros, int num_passageiros) {
 
-  char cpf[15];
-  char assento[4];
-
-  scanf("%s %s", cpf, assento);
-
   /**
    * @brief      Modifica a reserva de um passageiro
    *
    * @details    Modifica a reserva de um passageiro, pedindo os dados
-   * necessários para preencher a struct passageiro.
+   * necessários para preencher a struct passageiro. Ele escreve na
+   * struct passageiro os novos dados. A função acha o passageiro
+   * pelo cpf. Se não achar, printa que o passageiro não foi encontrado.
+   * Como dado no enunciado, podemos modificar o nome, sobrenome, cpf e
+   * assento.
+   *
+   * @param      tot_passageiros, vetor de passageiros
+   * @param      num_passageiros, número de passageiros
+   * util para fazermos o loop
+   *
+   *
+   * @return     void, escreve na struct passageiro
+   */
+  char cpf_consulta[15];   // Cpf para buscar o passageiro
+  char assento_novo[4];    // Assento novo
+  char cpf_novo[15];       // Cpf novo
+  char nome_novo[50];      // Nome novo
+  char sobrenome_novo[50]; // Sobrenome novo
+  int posicao;             // Posição do passageiro no vetor
+  scanf("%s %s %s %s %s", cpf_consulta, nome_novo, sobrenome_novo, cpf_novo,
+        assento_novo);
+
+  posicao = achar_passageiro(tot_passageiros, num_passageiros, cpf_consulta);
+  if (posicao == -1) {
+    printf("Passageiro não encontrado\n");
+    return;
+  } else {
+    strcpy(tot_passageiros[posicao].nome, nome_novo);
+    strcpy(tot_passageiros[posicao].sobrenome, sobrenome_novo);
+    strcpy(tot_passageiros[posicao].cpf, cpf_novo);
+    strcpy(tot_passageiros[posicao].assento, assento_novo);
+  }
+  printf("Reserva Modificada\n");
+  printf_passageiro(tot_passageiros[posicao]);
+  return;
+}
+
+int achar_passageiro(passageiro *tot_passageiros, int num_passageiros,
+                     char *cpf) {
+  /**
+   * @brief      Acha um passageiro
+   *
+   * @details    Acha o índice de um passageiro pelo cpf
+   * no vetor de passageiros. Se não achar, retorna -1.
+   * Ele não retorna 0, pois o índice 0 pode ser um passageiro.
+   * Ele percorre o vetor apenas uma vez, até achar. Assume-se
+   * que o cpf é único.
    *
    * @param      cpf, char com o cpf do passageiro
-   * @param      assento, char com o assento do passageiro
    * @param      tot_passageiros, vetor de passageiros
    *
-   * @return     void
+   * @return     int, posição do passageiro no vetor
    */
 
   int i;
   for (i = 0; i < num_passageiros; i++) {
     if (strcmp(tot_passageiros[i].cpf, cpf) == 0) {
-      strcpy(tot_passageiros[i].assento, assento);
+      return i;
     }
+  }
+  return -1;
+}
+
+void consulta_passageiro(passageiro *tot_passageiros, int num_passageiros) {
+  /**
+   * @brief      Consulta um passageiro
+   *
+   * @details    Consulta um passageiro, imprimindo
+   * os dados de um passageiro. Ele acha o passageiro
+   * pelo cpf. Se não achar, printa que o passageiro não foi encontrado.
+   *
+   *
+   * @param      cpf, char com o cpf do passageiro
+   * @param      tot_passageiros, vetor de passageiros
+   *
+   * @return     void
+   */
+
+  char cpf[15];
+  int posicao;
+  scanf("%s", cpf);
+  posicao = achar_passageiro(tot_passageiros, num_passageiros, cpf);
+  if (posicao == -1) {
+    printf("Passageiro não encontrado\n");
+    return;
+  } else {
+    printf_passageiro(tot_passageiros[posicao]);
+  }
+}
+
+passageiro *cancelar_reserva(passageiro *tot_passageiros, int num_passageiros) {
+  /**
+   * @brief      Cancela a reserva de um passageiro
+   *
+   * @details    Cancela a reserva de um passageiro, apagando
+   * todas as informações que ele possuia. Ele acha o passageiro
+   * pelo cpf. Se não achar, printa que o passageiro não foi encontrado.
+   * Ele faz um realocamento do vetor de passageiros, de forma que não perdemos
+   * nenhum outro passageiro. Ele retorna o vetor de passageiros, já realocado
+   * e sem o passageiro que foi cancelado.
+   *
+   * @param      tot_passageiros, vetor de passageiros
+   * @param      num_passageiros, número de passageiros
+   *
+   * @return     passageiro, vetor de passageiros
+   */
+
+  char cpf[15];
+  int posicao;
+  scanf("%s", cpf);
+  posicao = achar_passageiro(tot_passageiros, num_passageiros, cpf);
+  if (posicao == -1) {
+    printf("Passageiro não encontrado\n");
+    return tot_passageiros;
+  } else {
+    tot_passageiros[posicao] = tot_passageiros[num_passageiros - 1];
+    num_passageiros--;
+    tot_passageiros = (passageiro *)reallocate_vet(
+        tot_passageiros, num_passageiros * sizeof(passageiro));
+    return tot_passageiros;
   }
 }
