@@ -16,10 +16,10 @@
  * */
 
 /**
- * TODO: Implementar a função de fechamento do dia
- * TODO: Implementar a função de fechamento do voo
- * TODO: Implementar a função de impressão de todos os passageiros
- * TODO: Identificar quando o avião está cheio. Talvez seria legal colocar
+ * DONE: Implementar a função de fechamento do dia
+ * DONE: Implementar a função de fechamento do voo
+ * DONE: Implementar a função de impressão de todos os passageiros
+ * DONE: Identificar quando o avião está cheio. Talvez seria legal colocar
  * as opções de menu em uma função. Seria legal uma flag para indicar se o voo
  * está aberto ou fechado e se está cheio ou não.
  * DONE: Implementar a função de registro de passageiros
@@ -30,16 +30,24 @@
  * DONE: Implementar a função de realocação de vetores
  * DONE: Cancelar reserva
  *
- *
+ * TODO: Ver se na função de finalizar dia, precisa
+ * guardar em um arquivo e "salvar o estado do programa"
+ * assim que finalizar o dia.
+ * Caso seja necessário isso, precisamos de uma função que
+ * escreva todos os passageiros em um arquivo. Ademais, precisamos de uma
+ * função que salve o estado do programa, como as flags, número de passageiros,
+ * etc. Imagino que não deva ser díficil. Talvez no While podemos fazer uma
+ * comparação se existe um arquivo com passageiros, se existir, carregamos eles.
  * */
 
 /**
- * Os casos de teste estão na pasta e
- * por enquanto estão sendo utilizados
- * apenas para ver se o programa consegue
- * registrar mais de 1 pessoa e realizar modificações
- * nas reservas.
- * */
+ * Os Casos testes já estão
+ *implementados com input
+ *e output. Tem um script na
+ *shell que realiza o trabalho
+ *de fazer o diff entre eles,
+ *para saber se o input e output
+ *são iguais*/
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -63,35 +71,46 @@ typedef struct {
 void *reallocate_vet(void *vetor, int N);
 void *allocate_vet(int N);
 void entrada_opcao_menu(char *comando);
-void abertura_voo(void);
+int abertura_voo(void);
 passageiro registrar_passageiro(passageiro novo_passageiro);
 int achar_passageiro(passageiro *tot_passageiros, int num_passageiros,
                      char *cpf);
 void modificar_reserva(passageiro *tot_passageiros, int num_passageiros);
-void printf_passageiro(passageiro);
+void printf_passageiro(passageiro pass);
+void printf_voo(passageiro pass);
 void consulta_passageiro(passageiro *tot_passageiros, int num_passageiros);
 passageiro *cancelar_reserva(passageiro *tot_passageiros, int num_passageiros);
+void fechamento_dia(passageiro *tot_passageiros, int num_passageiros);
+void fechamento_voo(passageiro *tot_passageiros, int num_passageiros);
+void printf_underline(void);
+void free_vet(passageiro *tot_passageiros, int num_passageiros);
 
 int main(void) {
   char comando[3];
+  int flag_entrada = 1;
   int flag = 1;
+  int capacidade_maxima;
   int num_passageiros = 0;
   passageiro *tot_passageiros =
       (passageiro *)allocate_vet(0 * sizeof(passageiro)); // inicializa vetor
-  while (flag) {
+  while (flag_entrada) {
     entrada_opcao_menu(comando);
     if (strcmp(comando, "AV") == 0) {
-      abertura_voo();
-    } else if (strcmp(comando, "RR") == 0) { // TODO Flag de voo
+      capacidade_maxima = abertura_voo();
+      flag_entrada = 0;
+    }
+  }
+  while (capacidade_maxima && flag) {
+    entrada_opcao_menu(comando);
+    if (strcmp(comando, "RR") == 0) { // TODO Flag de voo
       num_passageiros++; // Pode ser uma boa colocar isso numa função
-      printf("%d\n", num_passageiros);
+      capacidade_maxima--;
       tot_passageiros = (passageiro *)reallocate_vet(
           tot_passageiros, num_passageiros * sizeof(passageiro));
       tot_passageiros[num_passageiros - 1] =
           registrar_passageiro(tot_passageiros[num_passageiros - 1]);
     } else if (strcmp(comando, "EX") == 0) { // Comando de saída
       flag = 0;
-
     } else if (strcmp(comando, "MR") == 0) { // Comando modificar voo
       modificar_reserva(tot_passageiros, num_passageiros);
     } else if (strcmp(comando, "CR") == 0) { // Comando consultar reserva
@@ -99,10 +118,18 @@ int main(void) {
     } else if (strcmp(comando, "CA") == 0) { // Comando cancelar reserva
       tot_passageiros = cancelar_reserva(tot_passageiros, num_passageiros);
       num_passageiros--;
+      capacidade_maxima++;
+    } else if (strcmp(comando, "FD") == 0) { // Comando fechamento do dia
+      fechamento_dia(tot_passageiros, num_passageiros);
+    } else if (strcmp(comando, "FV") == 0) { // Comando fechamento do voo
+      fechamento_voo(tot_passageiros, num_passageiros);
+      flag = 0;
     }
   }
-  printf_passageiro(tot_passageiros[0]); // Teste
-  printf("%d\n", num_passageiros);
+  if (capacidade_maxima == 0) {
+    fechamento_voo(tot_passageiros, num_passageiros);
+  }
+  return 0;
 }
 void *allocate_vet(int N) {
   /**
@@ -138,7 +165,7 @@ void entrada_opcao_menu(char *comando) {
 
   scanf("%s", comando);
 }
-void abertura_voo(void) {
+int abertura_voo(void) {
 
   /**
    * @brief      Abre um voo
@@ -158,11 +185,12 @@ void abertura_voo(void) {
   arquivo = fopen("voo.txt", "w");
   if (arquivo == NULL) {
     printf("Erro na abertura do arquivo\n");
-    return;
+    return 0;
   }
   scanf("%d %f %f", &assentos, &preco_eco, &preco_exec);
   fprintf(arquivo, "%d, %.2f, %.2f\n", assentos, preco_eco, preco_exec);
   fclose(arquivo);
+  return assentos;
 }
 
 void *reallocate_vet(void *vetor, int N) {
@@ -202,16 +230,21 @@ passageiro registrar_passageiro(passageiro novo_passageiro) {
    */
   novo_passageiro.nome = (char *)allocate_vet(50);
   novo_passageiro.sobrenome = (char *)allocate_vet(50);
-  scanf("%s %s %s %d %d %d %s %s %d %f %s %s", novo_passageiro.nome, // Ugly
+  char classe[10];
+  scanf("%s %s %s %d %d %d %s %s %s %f %s %s", novo_passageiro.nome, // Ugly
         novo_passageiro.sobrenome, novo_passageiro.cpf, &novo_passageiro.dia,
         &novo_passageiro.mes, &novo_passageiro.ano, novo_passageiro.num_voo,
-        novo_passageiro.assento, &novo_passageiro.classe,
-        &novo_passageiro.preco, novo_passageiro.origem,
-        novo_passageiro.destino);
+        novo_passageiro.assento, classe, &novo_passageiro.preco,
+        novo_passageiro.origem, novo_passageiro.destino);
+  if (strcmp(classe, "economica") == 0) {
+    novo_passageiro.classe = 0;
+  } else {
+    novo_passageiro.classe = 1;
+  }
   return novo_passageiro;
 }
 
-void printf_passageiro(passageiro passageiro) {
+void printf_passageiro(passageiro pass) {
   /**
    * @brief      Printa um passageiro
    *
@@ -224,18 +257,37 @@ void printf_passageiro(passageiro passageiro) {
    * @return     void
    */
 
-  puts(passageiro.cpf);
-  printf("%s %s\n", passageiro.nome, passageiro.sobrenome);
-  printf("%d/%d/%d\n", passageiro.dia, passageiro.mes, passageiro.ano);
-  printf("Voo: %s\n", passageiro.num_voo);
-  printf("Assento: %s\n", passageiro.assento);
-  if (passageiro.classe == 0) {
-    printf("Classe: Econômica\n");
+  puts(pass.cpf);
+  printf("%s %s\n", pass.nome, pass.sobrenome);
+  printf("%d/%d/%d\n", pass.dia, pass.mes, pass.ano);
+  printf("Voo: %s\n", pass.num_voo);
+  printf("Assento: %s\n", pass.assento);
+  if (pass.classe == 0) {
+    printf("Classe: economica\n");
   } else {
-    printf("Classe: Executiva\n");
+    printf("Classe: executiva\n");
   }
-  printf("Trecho: %s %s\n", passageiro.origem, passageiro.destino);
-  printf("Preço: %.2f\n", passageiro.preco);
+  printf("Trecho: %s %s\n", pass.origem, pass.destino);
+  printf("Valor: %.2f\n", pass.preco);
+  printf_underline();
+}
+
+void printf_voo(passageiro pass) {
+  /**
+   * @brief      Imprime apenas as informações do Voo
+   *
+   * @details    Recebe o passageiro e imprime apenas o CPF
+   * Nome e assento, nada mais. Para ser utilizado apenas
+   * no voo fechado
+   *
+   * @param      passageiro pass, estrutura do passageiro
+   *
+   * @return     void, apenas imprime
+   */
+  printf("%s\n", pass.cpf);
+  printf("%s %s\n", pass.nome, pass.sobrenome);
+  printf("%s\n", pass.assento);
+  return;
 }
 
 void modificar_reserva(passageiro *tot_passageiros, int num_passageiros) {
@@ -276,7 +328,7 @@ void modificar_reserva(passageiro *tot_passageiros, int num_passageiros) {
     strcpy(tot_passageiros[posicao].cpf, cpf_novo);
     strcpy(tot_passageiros[posicao].assento, assento_novo);
   }
-  printf("Reserva Modificada\n");
+  printf("Reserva Modificada:\n");
   printf_passageiro(tot_passageiros[posicao]);
   return;
 }
@@ -365,4 +417,94 @@ passageiro *cancelar_reserva(passageiro *tot_passageiros, int num_passageiros) {
         tot_passageiros, num_passageiros * sizeof(passageiro));
     return tot_passageiros;
   }
+}
+
+void fechamento_dia(passageiro *tot_passageiros, int num_passageiros) {
+  /**
+   * @brief      Fecha o dia
+   *
+   * @details    Fecha o dia, imprimindo todos os passageiros
+   * registrados e o valor total.
+   * @param      tot_passageiros, vetor de passageiros
+   * @param      num_passageiros, número de passageiros
+   *
+   * @return     void
+   */
+
+  float total = 0; // Valor total
+  for (int i = 0; i < num_passageiros; i++) {
+    total += tot_passageiros[i].preco;
+  }
+  printf("Fechamento do dia:\n");
+  printf("Quantidade de reservas: %d\n", num_passageiros);
+  printf("Posição: %.2f\n", total);
+  printf_underline();
+}
+
+void fechamento_voo(passageiro *tot_passageiros, int num_passageiros) {
+  /**
+   * @brief      Fecha o voo
+   *
+   * @details    Fecha o voo, não permitindo mais a modificação
+   * de reservas. Como ele é o último comando, ele também
+   * libera a memória alocada para o vetor de passageiros.
+   *
+   * @param      tot_passageiros, vetor de passageiros
+   * @param      num_passageiros, número de passageiros
+   *
+   * @return     void
+   */
+  float total = 0; // Valor total
+  printf("Voo Fechado!\n");
+  for (int i = 0; i < num_passageiros; i++) {
+    printf_voo(tot_passageiros[i]);
+    total += tot_passageiros[i].preco;
+  }
+  printf("Valor Total: %.2f\n", total);
+  printf_underline();
+  free_vet(tot_passageiros, num_passageiros);
+}
+
+void printf_underline(void) {
+  /**
+   * @brief      Printa underline
+   *
+   * @details    Printa 50 underline, para separar
+   * os comandos.
+   *
+   * @param      void
+   *
+   * @return     void
+   */
+
+  for (int i = 0; i < 50; i++) {
+    printf("-");
+  }
+  printf("\n");
+  return;
+}
+
+void free_vet(passageiro *tot_passageiros, int num_passageiros) {
+  /**
+   * @brief      Libera a memória alocada
+   *
+   * @details    Libera a memória alocada para o vetor
+   * de passageiros. Como esse é o único tipo de vetor
+   * que alocamos, não precisamos de um ponteiro void.
+   *
+   * @param      tot_passageiros, vetor de passageiros
+   * @param      num_passageiros, número de passageiros
+   *
+   * @return     void
+   */
+
+  for (int i = 0; i < num_passageiros; i++) {
+    free(tot_passageiros[i].nome);
+    free(tot_passageiros[i].sobrenome);
+    tot_passageiros[i].nome = NULL;      // segurança
+    tot_passageiros[i].sobrenome = NULL; // segurança
+  }
+  free(tot_passageiros);
+  tot_passageiros = NULL; // segurança
+  return;
 }

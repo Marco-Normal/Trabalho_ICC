@@ -23,6 +23,38 @@ DEADLINE: <2024-06-13 Thu>
 - TODO Criar o arquivo de documentação
 - TODO Criar o arquivo de testes
 
+* Como Utilizar o Arquivo Shell de Testes
+Para utilizar o arquivo de testes, basta executar o seguinte comando:
+
+#+begin_src sh
+chmod +x testes.sh
+./testes.sh
+#+end_src
+
+Ele vai comparar as saidas esperadas com as saídas do programa. Caso sejam iguais, ele vai retornar a mensagem ~OK~. Caso contrário, ele vai retornar a mensagem ~ERRO~. Caso deseja ver qual o erro, você pode executar o seguinte comando:
+
+#+begin_src sh
+./main < in/X.in > X_teste.out
+diff out/X.out X_teste.out
+#+end_src
+
+Onde ~X~ é o número do teste que você deseja ver.
+
+* Como Utilizar o Arquivo Makefile
+Para compilar o programa, basta executar o seguinte comando:
+
+#+begin_src sh
+make -k
+#+end_src
+
+Para limpar os arquivos gerados, basta executar o seguinte comando:
+
+#+begin_src sh
+make clean
+#+end_src
+
+
+
 * Introdução
 Será necessário criar um programa que realiza a alocação de voôs. Ele seria de uso único, ou seja, apenas alocaria 1 viagem de avião apenas. Todo projeto tem que ser escrito em C e devemos usar apenas o que vimos em sala de aula.
 O programa consistem em algumas operações básicas, que serão descritas a seguir. Todas as operações terão que ser utilizadas por linha de comando.
