@@ -1,0 +1,44 @@
+Reserva Modificada:
+555.555.333-99
+Carlos Massa
+12/12/2024
+Voo: V001
+Assento: A30
+Classe: economica
+Trecho: CGH RAO
+Valor: 1200.00
+--------------------------------------------------
+Fechamento do dia:
+Quantidade de reservas: 3
+Posição: 4900.00
+--------------------------------------------------
+555.333.333-89
+Roberto Carlos
+12/12/2024
+Voo: V001
+Assento: P12
+Classe: executiva
+Trecho: CGH RAO
+Valor: 2500.00
+--------------------------------------------------
+Voo Fechado!
+555.555.333-99
+Carlos Massa
+A30
+444.555.333-93
+Maria Massa
+A31
+555.333.333-89
+Roberto Carlos
+P12
+222.111.333-12
+Euclides Simon
+B01
+999.888.222-21
+Marta Rocha
+C02
+111.000.123-45
+Clara Nunes
+C09
+Valor Total: 11100.00
+--------------------------------------------------
