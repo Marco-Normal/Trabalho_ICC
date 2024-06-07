@@ -38,7 +38,7 @@ int main(void) {
     if (strcmp(comando, "AV") == 0) {
       abertura_voo();
     } else if (strcmp(comando, "RR") == 0) {
-      registrar_passageiro(vet_passageiros, num_passageiros);
+      vet_passageiros = registrar_passageiro(vet_passageiros, num_passageiros);
       num_passageiros++;
     } else if (strcmp(comando, "CR") == 0) {
       consultar_reserva();
