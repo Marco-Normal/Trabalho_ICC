@@ -27,12 +27,14 @@ passageiro *registrar_passageiro(passageiro *vet_passageiros, int N);
 
 int main(void) {
   char comando[3];
-  char *info; // Armazena a string digitada - o comando
+  char *info; // Armazena a string digitada sem o comando
   passageiro *vet_passageiros;
   int num_passageiros = 0;
   int flag = 1;
+  
   vet_passageiros = (passageiro *)allocate_vet(0);
   info = (char *)allocate_vet(100);
+  
   while (flag) {
     opcao_menu(comando, info);
     if (strcmp(comando, "AV") == 0) {
@@ -66,6 +68,7 @@ void *reallocate_vet(void *vet, int N) {
   return vet_aux;
 }
 
+// Recebe uma string do usuário e separa em 2
 void opcao_menu(char comando[3], char *info) { 
   char string[100];
 
