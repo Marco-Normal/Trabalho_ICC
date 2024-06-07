@@ -188,7 +188,6 @@ void modificar_reserva() {
   while (fscanf(arq, "%c", &c) != EOF) {
     fprintf(arq_temp, "%c", c);
   }
-
   remove(PATH_VOO);
   rename("temp.txt", PATH_VOO);
 
@@ -202,7 +201,6 @@ void modificar_reserva() {
   printf("Trecho: %s %s\n", consultado.origem, consultado.destino);
   printf("Valor: %.2f\n", consultado.preco);
   printf("--------------------------------------------------\n");
-  
   
   fclose(arq);
   fclose(arq_temp);
