@@ -13,7 +13,7 @@ typedef struct {
   int ano;
   char num_voo[5]; // número do voo
   char assento[4];
-  char classe[9]; // 0 para econômica e 1 para executiva
+  char classe[10]; // 0 para econômica e 1 para executiva
   float preco;
   char origem[4];  // aeroporto de origem
   char destino[4]; // aeroporto de destino
