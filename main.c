@@ -25,6 +25,7 @@ void opcao_menu(char comando[3]);
 void abertura_voo();
 passageiro *registrar_passageiro(passageiro *vet_passageiros, int N);
 void consultar_reserva();
+void modificar_reserva();
 
 int main(void) {
   char comando[3];
@@ -41,6 +42,8 @@ int main(void) {
       num_passageiros++;
     } else if (strcmp(comando, "CR") == 0) {
       consultar_reserva();
+    } else if (strcmp(comando, "MR") == 0) {
+      modificar_reserva();
     } else if (strcmp(comando, "EX") == 0) {
       flag = 0;
     }
@@ -138,6 +141,71 @@ void consultar_reserva() {
   printf("--------------------------------------------------\n");
 
   fclose(arq);
+  free(consultado.nome);
+  free(consultado.sobrenome);
+}
+
+void modificar_reserva() {
+  FILE *arq = fopen(PATH_VOO, "r+");
+  FILE *arq_temp = fopen("temp.txt", "w");
+  passageiro consultado;
+  int flag = 1, inicio, fim;
+  char string[15], c;
+
+  consultado.nome = (char *)allocate_vet(50);
+  consultado.sobrenome = (char *)allocate_vet(50);
+  scanf("%s", string);
+  while (flag) {
+    inicio = ftell(arq);
+    fscanf(arq, "%s %s %s %d %d %d %s %s %s %f %s %s", 
+           consultado.nome, consultado.sobrenome, 
+           consultado.cpf, &consultado.dia, 
+           &consultado.mes, &consultado.ano, 
+           consultado.num_voo,consultado.assento, 
+           consultado.classe, &consultado.preco, 
+           consultado.origem, consultado.destino);
+    if (strcmp(string, consultado.cpf) == 0)
+      flag = 0;
+    fim = ftell(arq);
+  }
+  scanf("%s %s %s %s",
+        consultado.nome, consultado.sobrenome,
+        consultado.cpf, consultado.assento);
+  
+  rewind(arq);
+  for(int i = 0; i < inicio; i++) {
+    fscanf(arq, "%c", &c);
+    fprintf(arq_temp, "%c", c);
+  }
+  fprintf(arq_temp, "%s %s %s %d %d %d %s %s %s %.2f %s %s\n",
+          consultado.nome, consultado.sobrenome,
+          consultado.cpf, consultado.dia,
+          consultado.mes, consultado.ano,
+          consultado.num_voo, consultado.assento,
+          consultado.classe, consultado.preco,
+          consultado.origem, consultado.destino);
+  fseek(arq, fim, SEEK_SET);
+  while (fscanf(arq, "%c", &c) != EOF) {
+    fprintf(arq_temp, "%c", c);
+  }
+
+  remove(PATH_VOO);
+  rename("temp.txt", PATH_VOO);
+
+  printf("Reserva modificada:\n");
+  printf("%s\n", consultado.cpf);
+  printf("%s %s\n", consultado.nome, consultado.sobrenome);
+  printf("%d/%d/%d\n", consultado.dia, consultado.mes, consultado.ano);
+  printf("Voo: %s\n", consultado.num_voo);
+  printf("Assento: %s\n", consultado.assento);
+  printf("Classe: %s\n", consultado.classe);
+  printf("Trecho: %s %s\n", consultado.origem, consultado.destino);
+  printf("Valor: %.2f\n", consultado.preco);
+  printf("--------------------------------------------------\n");
+  
+  
+  fclose(arq);
+  fclose(arq_temp);
   free(consultado.nome);
   free(consultado.sobrenome);
 }
