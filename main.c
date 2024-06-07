@@ -21,18 +21,20 @@ typedef struct {
 
 void *allocate_vet(int N);
 void *reallocate_vet(void *vet, int N);
-void opcao_menu(char comando[3]);
+void opcao_menu(char comando[3], char *info);
 void abertura_voo();
 passageiro *registrar_passageiro(passageiro *vet_passageiros, int N);
 
 int main(void) {
   char comando[3];
+  char *info; // Armazena a string digitada - o comando
   passageiro *vet_passageiros;
   int num_passageiros = 0;
   int flag = 1;
   vet_passageiros = (passageiro *)allocate_vet(0);
+  info = (char *)allocate_vet(100);
   while (flag) {
-    opcao_menu(comando);
+    opcao_menu(comando, info);
     if (strcmp(comando, "AV") == 0) {
       abertura_voo();
     } else if (strcmp(comando, "RR") == 0) {
@@ -41,6 +43,7 @@ int main(void) {
     } else if (strcmp(comando, "EX") == 0) {
       flag = 0;
     }
+    free(info);
     return 0;
   }
 }
@@ -63,7 +66,12 @@ void *reallocate_vet(void *vet, int N) {
   return vet_aux;
 }
 
-void opcao_menu(char comando[3]) { scanf("%s", comando); }
+void opcao_menu(char comando[3], char *info) { 
+  char string[100];
+
+  fgets(string, sizeof(string), stdin);
+  sscanf(string, " %[^ ] %[^\n]", comando, info);
+}
 
 void abertura_voo() {
   FILE *arq;
