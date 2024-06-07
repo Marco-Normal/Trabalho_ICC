@@ -27,6 +27,8 @@ passageiro *registrar_passageiro(passageiro *vet_passageiros, int N);
 void consultar_reserva();
 void modificar_reserva();
 
+passageiro *carregar_lista_passgeiros(passageiro *vet_passageiros, char path[],
+                                      int N);
 int main(void) {
   char comando[3];
   passageiro *vet_passageiros;
@@ -120,12 +122,10 @@ void consultar_reserva() {
   consultado.sobrenome = (char *)allocate_vet(50);
   scanf("%s", string);
   while (flag) {
-    fscanf(arq, "%s %s %s %d %d %d %s %s %s %f %s %s", 
-           consultado.nome, consultado.sobrenome, 
-           consultado.cpf, &consultado.dia, 
-           &consultado.mes, &consultado.ano, 
-           consultado.num_voo,consultado.assento, 
-           consultado.classe, &consultado.preco, 
+    fscanf(arq, "%s %s %s %d %d %d %s %s %s %f %s %s", consultado.nome,
+           consultado.sobrenome, consultado.cpf, &consultado.dia,
+           &consultado.mes, &consultado.ano, consultado.num_voo,
+           consultado.assento, consultado.classe, &consultado.preco,
            consultado.origem, consultado.destino);
     if (strcmp(string, consultado.cpf) == 0)
       flag = 0;
@@ -157,33 +157,28 @@ void modificar_reserva() {
   scanf("%s", string);
   while (flag) {
     inicio = ftell(arq);
-    fscanf(arq, "%s %s %s %d %d %d %s %s %s %f %s %s", 
-           consultado.nome, consultado.sobrenome, 
-           consultado.cpf, &consultado.dia, 
-           &consultado.mes, &consultado.ano, 
-           consultado.num_voo,consultado.assento, 
-           consultado.classe, &consultado.preco, 
+    fscanf(arq, "%s %s %s %d %d %d %s %s %s %f %s %s", consultado.nome,
+           consultado.sobrenome, consultado.cpf, &consultado.dia,
+           &consultado.mes, &consultado.ano, consultado.num_voo,
+           consultado.assento, consultado.classe, &consultado.preco,
            consultado.origem, consultado.destino);
     if (strcmp(string, consultado.cpf) == 0)
       flag = 0;
     fim = ftell(arq);
   }
-  scanf("%s %s %s %s",
-        consultado.nome, consultado.sobrenome,
-        consultado.cpf, consultado.assento);
-  
+  scanf("%s %s %s %s", consultado.nome, consultado.sobrenome, consultado.cpf,
+        consultado.assento);
+
   rewind(arq);
-  for(int i = 0; i < inicio; i++) {
+  for (int i = 0; i < inicio; i++) {
     fscanf(arq, "%c", &c);
     fprintf(arq_temp, "%c", c);
   }
-  fprintf(arq_temp, "%s %s %s %d %d %d %s %s %s %.2f %s %s\n",
-          consultado.nome, consultado.sobrenome,
-          consultado.cpf, consultado.dia,
-          consultado.mes, consultado.ano,
-          consultado.num_voo, consultado.assento,
-          consultado.classe, consultado.preco,
-          consultado.origem, consultado.destino);
+  fprintf(arq_temp, "%s %s %s %d %d %d %s %s %s %.2f %s %s\n", consultado.nome,
+          consultado.sobrenome, consultado.cpf, consultado.dia, consultado.mes,
+          consultado.ano, consultado.num_voo, consultado.assento,
+          consultado.classe, consultado.preco, consultado.origem,
+          consultado.destino);
   fseek(arq, fim, SEEK_SET);
   while (fscanf(arq, "%c", &c) != EOF) {
     fprintf(arq_temp, "%c", c);
@@ -201,9 +196,51 @@ void modificar_reserva() {
   printf("Trecho: %s %s\n", consultado.origem, consultado.destino);
   printf("Valor: %.2f\n", consultado.preco);
   printf("--------------------------------------------------\n");
-  
+
   fclose(arq);
   fclose(arq_temp);
   free(consultado.nome);
   free(consultado.sobrenome);
+}
+
+passageiro *carregar_lista_passgeiros(passageiro *vet_passageiros, char path[],
+                                      int N) {
+  /**
+   * @brief      Carrega a lista de passageiros de um arquivo
+   *
+   * @details    Recebe um vetor de passageiros e um caminho para um arquivo
+   *            que contém informações de passageiros. O arquivo deve estar
+   *            no formato:
+   *            nome sobrenome cpf dia mes ano num_voo assento classe preco
+   * origem destino O vetor de passageiros é alocado dinamicamente e retornado
+   *            para o usuário.
+   *
+   * @param      passageiro *vet_passageiros  Vetor de passageiros
+   * @param      path  Caminho para o arquivo
+   * @param      N     Número de passageiros
+   *
+   * @return     *passageiro Vetor de passageiros
+   */
+  FILE *arq;
+  arq = fopen(path, "r");
+  if (arq == NULL) {
+    printf("Erro ao abrir o arquivo\n");
+    exit(1);
+  }
+  vet_passageiros = (passageiro *)allocate_vet(N * sizeof(passageiro));
+  fscanf(arq, "%*[^\n]"); // Ignora a primeira linha
+  for (int i = 0; i < N; i++) {
+    vet_passageiros[i].nome = (char *)allocate_vet(50);
+    vet_passageiros[i].sobrenome = (char *)allocate_vet(50);
+    fscanf(arq, "%s %s %s %d %d %d %s %s %s %f %s %s", vet_passageiros[i].nome,
+           vet_passageiros[i].sobrenome, vet_passageiros[i].cpf,
+           &vet_passageiros[i].dia, &vet_passageiros[i].mes,
+           &vet_passageiros[i].ano, vet_passageiros[i].num_voo,
+           vet_passageiros[i].assento, vet_passageiros[i].classe,
+           &vet_passageiros[i].preco, vet_passageiros[i].origem,
+           vet_passageiros[i].destino);
+  }
+
+  fclose(arq);
+  return vet_passageiros;
 }
