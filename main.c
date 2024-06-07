@@ -21,31 +21,26 @@ typedef struct {
 
 void *allocate_vet(int N);
 void *reallocate_vet(void *vet, int N);
-void opcao_menu(char comando[3], char *info);
-void abertura_voo(char *info);
+void opcao_menu(char comando[3]);
+void abertura_voo();
 passageiro *registrar_passageiro(passageiro *vet_passageiros, int N);
 
 int main(void) {
   char comando[3];
-  char *info; // Armazena a string digitada sem o comando
   passageiro *vet_passageiros;
   int num_passageiros = 0;
   int flag = 1;
-  
   vet_passageiros = (passageiro *)allocate_vet(0);
-  info = (char *)allocate_vet(100);
-  
   while (flag) {
-    opcao_menu(comando, info);
+    opcao_menu(comando);
     if (strcmp(comando, "AV") == 0) {
-      abertura_voo(info);
+      abertura_voo();
     } else if (strcmp(comando, "RR") == 0) {
       registrar_passageiro(vet_passageiros, num_passageiros);
       num_passageiros++;
     } else if (strcmp(comando, "EX") == 0) {
       flag = 0;
     }
-    free(info);
     return 0;
   }
 }
@@ -68,19 +63,14 @@ void *reallocate_vet(void *vet, int N) {
   return vet_aux;
 }
 
-// Recebe uma string do usuário e separa em 2
-void opcao_menu(char comando[3], char *info) { 
-  char string[100];
-  fgets(string, sizeof(string), stdin);
-  sscanf(string, " %[^ ] %[^\n]", comando, info);
-}
+void opcao_menu(char comando[3]) { scanf("%s", comando); }
 
-void abertura_voo(char *info) {
+void abertura_voo() {
   FILE *arq;
   arq = fopen(PATH_VOO, "w");
   int assentos;
   float preco_eco, preco_exec;
-  sscanf(info, "%d %f %f", &assentos, &preco_eco, &preco_exec);
+  scanf("%d %f %f", &assentos, &preco_eco, &preco_exec);
   fprintf(arq, "%d %.2f %.2f\n", assentos, preco_eco, preco_exec);
   fclose(arq);
 }
