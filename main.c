@@ -24,6 +24,7 @@ void *reallocate_vet(void *vet, int N);
 void opcao_menu(char comando[3]);
 void abertura_voo();
 passageiro *registrar_passageiro(passageiro *vet_passageiros, int N);
+void consultar_reserva();
 
 int main(void) {
   char comando[3];
@@ -38,11 +39,13 @@ int main(void) {
     } else if (strcmp(comando, "RR") == 0) {
       registrar_passageiro(vet_passageiros, num_passageiros);
       num_passageiros++;
+    } else if (strcmp(comando, "CR") == 0) {
+      consultar_reserva();
     } else if (strcmp(comando, "EX") == 0) {
       flag = 0;
     }
-    return 0;
   }
+  return 0;
 }
 
 void *allocate_vet(int N) {
@@ -102,4 +105,39 @@ passageiro *registrar_passageiro(passageiro *vet_passageiros, int N) {
           vet_passageiros[N].origem, vet_passageiros[N].destino);
   fclose(arq);
   return vet_passageiros;
+}
+
+void consultar_reserva() {
+  FILE *arq = fopen(PATH_VOO, "r");
+  passageiro consultado;
+  int flag = 1;
+  char string[15]; // CPF de consulta
+
+  consultado.nome = (char *)allocate_vet(50);
+  consultado.sobrenome = (char *)allocate_vet(50);
+  scanf("%s", string);
+  while (flag) {
+    fscanf(arq, "%s %s %s %d %d %d %s %s %s %f %s %s", 
+           consultado.nome, consultado.sobrenome, 
+           consultado.cpf, &consultado.dia, 
+           &consultado.mes, &consultado.ano, 
+           consultado.num_voo,consultado.assento, 
+           consultado.classe, &consultado.preco, 
+           consultado.origem, consultado.destino);
+    if (strcmp(string, consultado.cpf) == 0)
+      flag = 0;
+  }
+  printf("%s\n", consultado.cpf);
+  printf("%s %s\n", consultado.nome, consultado.sobrenome);
+  printf("%d/%d/%d\n", consultado.dia, consultado.mes, consultado.ano);
+  printf("Voo: %s\n", consultado.num_voo);
+  printf("Assento: %s\n", consultado.assento);
+  printf("Classe: %s\n", consultado.classe);
+  printf("Trecho: %s %s\n", consultado.origem, consultado.destino);
+  printf("Valor: %.2f\n", consultado.preco);
+  printf("--------------------------------------------------\n");
+
+  fclose(arq);
+  free(consultado.nome);
+  free(consultado.sobrenome);
 }
