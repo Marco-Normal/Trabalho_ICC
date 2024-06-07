@@ -22,7 +22,7 @@ typedef struct {
 void *allocate_vet(int N);
 void *reallocate_vet(void *vet, int N);
 void opcao_menu(char comando[3], char *info);
-void abertura_voo();
+void abertura_voo(char *info);
 passageiro *registrar_passageiro(passageiro *vet_passageiros, int N);
 
 int main(void) {
@@ -38,7 +38,7 @@ int main(void) {
   while (flag) {
     opcao_menu(comando, info);
     if (strcmp(comando, "AV") == 0) {
-      abertura_voo();
+      abertura_voo(info);
     } else if (strcmp(comando, "RR") == 0) {
       registrar_passageiro(vet_passageiros, num_passageiros);
       num_passageiros++;
@@ -71,17 +71,16 @@ void *reallocate_vet(void *vet, int N) {
 // Recebe uma string do usuário e separa em 2
 void opcao_menu(char comando[3], char *info) { 
   char string[100];
-
   fgets(string, sizeof(string), stdin);
   sscanf(string, " %[^ ] %[^\n]", comando, info);
 }
 
-void abertura_voo() {
+void abertura_voo(char *info) {
   FILE *arq;
   arq = fopen(PATH_VOO, "w");
   int assentos;
   float preco_eco, preco_exec;
-  scanf("%d %f %f", &assentos, &preco_eco, &preco_exec);
+  sscanf(info, "%d %f %f", &assentos, &preco_eco, &preco_exec);
   fprintf(arq, "%d %.2f %.2f\n", assentos, preco_eco, preco_exec);
   fclose(arq);
 }
