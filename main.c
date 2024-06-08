@@ -193,10 +193,10 @@ void modificar_reserva(passageiro *vet_passageiros, int num_passageiros) {
   // Realocação
   vet_passageiros[indice].nome = reallocate_vet(
     vet_passageiros[indice].nome,
-    sizeof(vet_passageiros[indice].nome) + 1);
+    strlen(vet_passageiros[indice].nome) + 1);
   vet_passageiros[indice].sobrenome = reallocate_vet(
     vet_passageiros[indice].sobrenome,
-    sizeof(vet_passageiros[indice].sobrenome) + 1);
+    strlen(vet_passageiros[indice].sobrenome) + 1);
 
   // Imprime os novos dados
   printf("Reserva modificada:\n");
