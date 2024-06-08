@@ -26,6 +26,7 @@ void abertura_voo();
 passageiro *registrar_passageiro(passageiro *vet_passageiros, int N);
 void consultar_reserva(passageiro *vet_passageiros, int num_passageiros);
 void modificar_reserva(passageiro *vet_passageiros, int num_passageiros);
+int cancelar_reserva(passageiro *vet_passageiros, int num_passageiros);
 void printf_underline(void);
 void printf_voo(passageiro pass);
 void printf_passageiro(passageiro pass);
@@ -50,6 +51,8 @@ int main(void) {
       consultar_reserva(vet_passageiros, num_passageiros);
     } else if (strcmp(comando, "MR") == 0) {
       modificar_reserva(vet_passageiros, num_passageiros);
+    } else if (strcmp(comando, "CA") == 0) {
+      num_passageiros = cancelar_reserva(vet_passageiros, num_passageiros);
     } else if (strcmp(comando, "EX") == 0) {
       flag = 0;
     } else if (strcmp(comando, "CL") == 0) {
@@ -198,6 +201,55 @@ void modificar_reserva(passageiro *vet_passageiros, int num_passageiros) {
   // Imprime os novos dados
   printf("Reserva modificada:\n");
   printf_passageiro(vet_passageiros[indice]);
+}
+
+int cancelar_reserva(passageiro *vet_passageiros, int num_passageiros) {
+  /*
+  * @brief      Cancela a reserva por CPF
+  *
+  * @details    Através do CPF digitado, busca o passageiro correspondente
+  *             e obtém seu índice em vet_passageiros
+  *             A partir do passageiro cancelado até e incluindo o penúltimo
+  *             passageiro, copia os dados do passageiro seguinte para o
+  *             passageiro atual. Os dados universais para o vôo são 
+  *             ignorados
+  *             Por fim, reduz o nº de passageiros em 1 e retorna para main
+  *
+  * @param      passageiro *vet_passageiros
+  * @param      int num_passageiros
+  *
+  * @return     num_passageiros - 1
+  */
+  int indice = 0; // Incremento conforme o passageiro não corresponde ao CPF
+  char cpf_consultado[15];
+
+  scanf("%s", cpf_consultado);
+  for (; indice < num_passageiros; indice++) {
+    if (strcmp(cpf_consultado, vet_passageiros[indice].cpf) == 0) {
+      break;
+    }
+  }
+  
+  for (int i = indice; i < num_passageiros - 1; i++) {
+    /* Realoca os nome e sobrenome do passageiro i em função do tamanho
+    dos nome e sobrenome do passageiro i+1 */
+    vet_passageiros[i].nome = reallocate_vet(
+      vet_passageiros[i + 1].nome,
+      sizeof(vet_passageiros[i + 1].nome) + 1);
+    vet_passageiros[i].sobrenome = reallocate_vet(
+      vet_passageiros[i].sobrenome,
+      sizeof(vet_passageiros[i + 1].sobrenome) + 1);
+
+    // Copia os dados do passageiro i+1 para o passageiro i
+    strcpy(vet_passageiros[i].nome, vet_passageiros[i + 1].nome);
+    strcpy(vet_passageiros[i].sobrenome, vet_passageiros[i + 1].sobrenome);
+    strcpy(vet_passageiros[i].cpf, vet_passageiros[i + 1].cpf);
+    strcpy(vet_passageiros[i].assento, vet_passageiros[i + 1].assento);
+    strcpy(vet_passageiros[i].classe, vet_passageiros[i + 1].classe);
+    vet_passageiros[i].preco = vet_passageiros[i + 1].preco;
+  }
+  
+  return (num_passageiros - 1);
 }
 
 passageiro *carregar_lista_passgeiros(passageiro *vet_passageiros, char path[],
