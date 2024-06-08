@@ -132,7 +132,6 @@ void consultar_reserva(passageiro *vet_passageiros, int num_passageiros) {
    * @details    A partir do CPF digitado, busca o passageiro correspondente
    *             na struct e chama a função printf_passageiro para exibir
    *             os dados na tela
-   *  
    *
    * @param      passageiro *vet_passageiros
    * @param      int num_passageiros
