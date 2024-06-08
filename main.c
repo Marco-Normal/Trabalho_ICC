@@ -25,7 +25,7 @@ void opcao_menu(char comando[3]);
 void abertura_voo();
 passageiro *registrar_passageiro(passageiro *vet_passageiros, int N);
 void consultar_reserva(passageiro *vet_passageiros, int num_passageiros);
-void modificar_reserva();
+void modificar_reserva(passageiro *vet_passageiros, int num_passageiros);
 void printf_underline(void);
 void printf_voo(passageiro pass);
 void printf_passageiro(passageiro pass);
@@ -49,7 +49,7 @@ int main(void) {
     } else if (strcmp(comando, "CR") == 0) {
       consultar_reserva(vet_passageiros, num_passageiros);
     } else if (strcmp(comando, "MR") == 0) {
-      modificar_reserva();
+      modificar_reserva(vet_passageiros, num_passageiros);
     } else if (strcmp(comando, "EX") == 0) {
       flag = 0;
     } else if (strcmp(comando, "CL") == 0) {
@@ -151,55 +151,53 @@ void consultar_reserva(passageiro *vet_passageiros, int num_passageiros) {
   }
 }
 
-void modificar_reserva() { /* Modificar, pois não precisa de arquivo */
-  /* Se quiser pegar da main.old.c, pode pegar, ela vai funcionar */
-  FILE *arq = fopen(PATH_VOO, "r+");
-  FILE *arq_temp = fopen("temp.txt", "w");
-  passageiro consultado;
-  int flag = 1, inicio, fim;
-  char string[15], c;
+void modificar_reserva(passageiro *vet_passageiros, int num_passageiros) {
+  /**
+   * @brief      Modifica a reserva por CPF e imprime os dados na tela
+   *
+   * @details    Recebe do usuário o CPF consultado e os novos dados na forma
+   *             "CPF_consultado nome sobrenome CPF assento>"
+   *             A partir do CPF digitado, busca o passageiro correspondente
+   *             na struct e modifica seus dados
+   *             Ao final, chama a função printf_passageiro para exibir os
+   *             novos dados na tela
+   *
+   * @param      passageiro *vet_passageiros
+   * @param      int num_passageiros
+   *
+   * @return     void
+   */
+  int indice = 0; // Incremento conforme o passageiro não corresponde ao CPF
+  char cpf_consultado[15];
 
-  consultado.nome = (char *)allocate_vet(50);
-  consultado.sobrenome = (char *)allocate_vet(50);
-  scanf("%s", string);
-  while (flag) {
-    inicio = ftell(arq);
-    fscanf(arq, "%s %s %s %d %d %d %s %s %s %f %s %s", consultado.nome,
-           consultado.sobrenome, consultado.cpf, &consultado.dia,
-           &consultado.mes, &consultado.ano, consultado.num_voo,
-           consultado.assento, consultado.classe, &consultado.preco,
-           consultado.origem, consultado.destino);
-    if (strcmp(string, consultado.cpf) == 0)
-      flag = 0;
-    fim = ftell(arq);
+  scanf("%s", cpf_consultado);
+  for (; indice < num_passageiros; indice++) {
+    if (strcmp(cpf_consultado, vet_passageiros[indice].cpf) == 0) {
+      break;
+    }
   }
-  scanf("%s %s %s %s", consultado.nome, consultado.sobrenome, consultado.cpf,
-        consultado.assento);
 
-  rewind(arq);
-  for (int i = 0; i < inicio; i++) {
-    fscanf(arq, "%c", &c);
-    fprintf(arq_temp, "%c", c);
-  }
-  fprintf(arq_temp, "%s %s %s %d %d %d %s %s %s %.2f %s %s\n", consultado.nome,
-          consultado.sobrenome, consultado.cpf, consultado.dia, consultado.mes,
-          consultado.ano, consultado.num_voo, consultado.assento,
-          consultado.classe, consultado.preco, consultado.origem,
-          consultado.destino);
-  fseek(arq, fim, SEEK_SET);
-  while (fscanf(arq, "%c", &c) != EOF) {
-    fprintf(arq_temp, "%c", c);
-  }
-  remove(PATH_VOO);
-  rename("temp.txt", PATH_VOO);
+  // Realocação (não se sabe o tamanho do novo nome e/ou sobrenome)
+  vet_passageiros[indice].nome = reallocate_vet(
+    vet_passageiros[indice].nome, 50);
+  vet_passageiros[indice].sobrenome = reallocate_vet(
+    vet_passageiros[indice].sobrenome, 50);
+  
+  scanf("%s %s %s %s", 
+        vet_passageiros[indice].nome, vet_passageiros[indice].sobrenome, 
+        vet_passageiros[indice].cpf, vet_passageiros[indice].assento);
 
+  // Realocação
+  vet_passageiros[indice].nome = reallocate_vet(
+    vet_passageiros[indice].nome,
+    sizeof(vet_passageiros[indice].nome) + 1);
+  vet_passageiros[indice].sobrenome = reallocate_vet(
+    vet_passageiros[indice].sobrenome,
+  sizeof(vet_passageiros[indice].sobrenome) + 1);
+
+  // Imprime os novos dados
   printf("Reserva modificada:\n");
-  printf_passageiro(consultado);
-
-  fclose(arq);
-  fclose(arq_temp);
-  free(consultado.nome);
-  free(consultado.sobrenome);
+  printf_passageiro(vet_passageiros[indice]);
 }
 
 passageiro *carregar_lista_passgeiros(passageiro *vet_passageiros, char path[],
