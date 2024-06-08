@@ -9,10 +9,10 @@ CFLAGS = -O2 -Wall -lm
 
 
 
-all: main2
+all: main
 
-main: main2.c
-	$(CC) $(CFLAGS) -o main main2.c
+main: main.c
+	$(CC) $(CFLAGS) -o main main.c
 
 
 clean:

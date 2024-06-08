@@ -26,9 +26,12 @@ void abertura_voo();
 passageiro *registrar_passageiro(passageiro *vet_passageiros, int N);
 void consultar_reserva();
 void modificar_reserva();
-
+void printf_underline(void);
+void printf_voo(passageiro pass);
+void printf_passageiro(passageiro pass);
 passageiro *carregar_lista_passgeiros(passageiro *vet_passageiros, char path[],
-                                      int N);
+                                      int *N);
+void fechar_dia(passageiro *vet_passageiros, int N);
 int main(void) {
   char comando[3];
   passageiro *vet_passageiros;
@@ -47,6 +50,12 @@ int main(void) {
     } else if (strcmp(comando, "MR") == 0) {
       modificar_reserva();
     } else if (strcmp(comando, "EX") == 0) {
+      flag = 0;
+    } else if (strcmp(comando, "CL") == 0) {
+      vet_passageiros = carregar_lista_passgeiros(vet_passageiros, PATH_VOO,
+                                                  &num_passageiros);
+    } else if (strcmp(comando, "FD") == 0) {
+      fechar_dia(vet_passageiros, num_passageiros);
       flag = 0;
     }
   }
@@ -79,7 +88,10 @@ void abertura_voo() {
   int assentos;
   float preco_eco, preco_exec;
   scanf("%d %f %f", &assentos, &preco_eco, &preco_exec);
-  fprintf(arq, "%d %.2f %.2f\n", assentos, preco_eco, preco_exec);
+  fprintf(arq, "%d %d %.2f %.2f\n", 0, assentos, preco_eco, preco_exec);
+  /* Esse 0 a mais vai ser a quantidade de assentos vendidos no dia.
+   *Vamos modificar ela só no fechamendo do dia. A cada novo dia,
+   *vamos pegar o valor de lá.*/
   fclose(arq);
 }
 
@@ -112,7 +124,8 @@ passageiro *registrar_passageiro(passageiro *vet_passageiros, int N) {
   return vet_passageiros;
 }
 
-void consultar_reserva() {
+void consultar_reserva() { /* Modificar, pois não precisa de arquivo */
+  /* Se quiser pegar da main.old.c, pode pegar, ela vai funcionar */
   FILE *arq = fopen(PATH_VOO, "r");
   passageiro consultado;
   int flag = 1;
@@ -130,22 +143,15 @@ void consultar_reserva() {
     if (strcmp(string, consultado.cpf) == 0)
       flag = 0;
   }
-  printf("%s\n", consultado.cpf);
-  printf("%s %s\n", consultado.nome, consultado.sobrenome);
-  printf("%d/%d/%d\n", consultado.dia, consultado.mes, consultado.ano);
-  printf("Voo: %s\n", consultado.num_voo);
-  printf("Assento: %s\n", consultado.assento);
-  printf("Classe: %s\n", consultado.classe);
-  printf("Trecho: %s %s\n", consultado.origem, consultado.destino);
-  printf("Valor: %.2f\n", consultado.preco);
-  printf("--------------------------------------------------\n");
+  printf_passageiro(consultado);
 
   fclose(arq);
   free(consultado.nome);
   free(consultado.sobrenome);
 }
 
-void modificar_reserva() {
+void modificar_reserva() { /* Modificar, pois não precisa de arquivo */
+  /* Se quiser pegar da main.old.c, pode pegar, ela vai funcionar */
   FILE *arq = fopen(PATH_VOO, "r+");
   FILE *arq_temp = fopen("temp.txt", "w");
   passageiro consultado;
@@ -187,15 +193,7 @@ void modificar_reserva() {
   rename("temp.txt", PATH_VOO);
 
   printf("Reserva modificada:\n");
-  printf("%s\n", consultado.cpf);
-  printf("%s %s\n", consultado.nome, consultado.sobrenome);
-  printf("%d/%d/%d\n", consultado.dia, consultado.mes, consultado.ano);
-  printf("Voo: %s\n", consultado.num_voo);
-  printf("Assento: %s\n", consultado.assento);
-  printf("Classe: %s\n", consultado.classe);
-  printf("Trecho: %s %s\n", consultado.origem, consultado.destino);
-  printf("Valor: %.2f\n", consultado.preco);
-  printf("--------------------------------------------------\n");
+  printf_passageiro(consultado);
 
   fclose(arq);
   fclose(arq_temp);
@@ -204,7 +202,7 @@ void modificar_reserva() {
 }
 
 passageiro *carregar_lista_passgeiros(passageiro *vet_passageiros, char path[],
-                                      int N) {
+                                      int *N) {
   /**
    * @brief      Carrega a lista de passageiros de um arquivo
    *
@@ -227,9 +225,10 @@ passageiro *carregar_lista_passgeiros(passageiro *vet_passageiros, char path[],
     printf("Erro ao abrir o arquivo\n");
     exit(1);
   }
-  vet_passageiros = (passageiro *)allocate_vet(N * sizeof(passageiro));
+  fscanf(arq, "%d", N); // Lê o número de passageiros
+  vet_passageiros = (passageiro *)allocate_vet(*N * sizeof(passageiro));
   fscanf(arq, "%*[^\n]"); // Ignora a primeira linha
-  for (int i = 0; i < N; i++) {
+  for (int i = 0; i < *N; i++) {
     vet_passageiros[i].nome = (char *)allocate_vet(50);
     vet_passageiros[i].sobrenome = (char *)allocate_vet(50);
     fscanf(arq, "%s %s %s %d %d %d %s %s %s %f %s %s", vet_passageiros[i].nome,
@@ -243,4 +242,95 @@ passageiro *carregar_lista_passgeiros(passageiro *vet_passageiros, char path[],
 
   fclose(arq);
   return vet_passageiros;
+}
+
+void printf_passageiro(passageiro pass) {
+  /**
+   * @brief      Printa um passageiro
+   *
+   * @details    Printa um passageiro, no formato
+   * especificado no enunciado do trabalho. A função
+   * é bem simples, só aceita um passageiro por vez.
+   *
+   * @param      passageiro, struct passageiro que vamos printar
+   *
+   * @return     void
+   */
+
+  puts(pass.cpf);
+  printf("%s %s\n", pass.nome, pass.sobrenome);
+  printf("%d/%d/%d\n", pass.dia, pass.mes, pass.ano);
+  printf("Voo: %s\n", pass.num_voo);
+  printf("Assento: %s\n", pass.assento);
+  printf("Classe: %s\n", pass.classe);
+  printf("Trecho: %s %s\n", pass.origem, pass.destino);
+  printf("Valor: %.2f\n", pass.preco);
+  printf_underline();
+}
+
+void printf_underline(void) {
+  /**
+   * @brief      Printa underline
+   *
+   * @details    Printa 50 underline, para separar
+   * os comandos.
+   *
+   * @param      void
+   *
+   * @return     void
+   */
+
+  for (int i = 0; i < 50; i++) {
+    printf("-");
+  }
+  printf("\n");
+  return;
+}
+
+void printf_voo(passageiro pass) {
+  /**
+   * @brief      Imprime apenas as informações do Voo
+   *
+   * @details    Recebe o passageiro e imprime apenas o CPF
+   * Nome e assento, nada mais. Para ser utilizado apenas
+   * no voo fechado
+   *
+   * @param      passageiro pass, estrutura do passageiro
+   *
+   * @return     void, apenas imprime
+   */
+  printf("%s\n", pass.cpf);
+  printf("%s %s\n", pass.nome, pass.sobrenome);
+  printf("%s\n", pass.assento);
+  return;
+}
+
+void fechar_dia(passageiro *vet_passageiros, int N) {
+  /**
+   * @brief      Fecha o dia
+   *
+   * @details    Recebe um vetor de passageiros e o número
+   * de passageiros, e fecha o dia, imprimindo os passageiros
+   * e o total arrecadado. Ademais, ele atualiza o arquivo
+   * de voos, colocando o número de passageiros no início
+   * do arquivo.
+   *
+   * @param      passageiro *vet_passageiros, vetor de passageiros
+   * @param      int N, número de passageiros
+   *
+   * @return     void, apenas imprime
+   */
+  FILE *arq;
+  arq = fopen(PATH_VOO, "r+");
+  fseek(arq, 0, SEEK_SET);
+  fprintf(arq, "%d", N);
+  fclose(arq);
+
+  float total = 0;
+  for (int i = 0; i < N; i++) {
+    printf_voo(vet_passageiros[i]);
+    total += vet_passageiros[i].preco;
+  }
+  printf("Total arrecadado: %.2f\n", total);
+  return;
 }
