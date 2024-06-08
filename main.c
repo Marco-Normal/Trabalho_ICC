@@ -233,10 +233,10 @@ int cancelar_reserva(passageiro *vet_passageiros, int num_passageiros) {
   for (int i = indice; i < num_passageiros - 1; i++) {
     /* Realoca os nome e sobrenome do passageiro i em função do tamanho
     dos nome e sobrenome do passageiro i+1 */
-    vet_passageiros[i].nome = reallocate_vet(
+    vet_passageiros[i].nome = (char *)reallocate_vet(
       vet_passageiros[i + 1].nome,
       sizeof(vet_passageiros[i + 1].nome) + 1);
-    vet_passageiros[i].sobrenome = reallocate_vet(
+    vet_passageiros[i].sobrenome = (char *)reallocate_vet(
       vet_passageiros[i].sobrenome,
       sizeof(vet_passageiros[i + 1].sobrenome) + 1);
 
@@ -290,6 +290,10 @@ passageiro *carregar_lista_passgeiros(passageiro *vet_passageiros, char path[],
            vet_passageiros[i].assento, vet_passageiros[i].classe,
            &vet_passageiros[i].preco, vet_passageiros[i].origem,
            vet_passageiros[i].destino);
+    vet_passageiros[i].nome = (char *)reallocate_vet(
+      vet_passageiros[i].nome, strlen(vet_passageiros[i].nome) + 1);
+    vet_passageiros[i].sobrenome = (char *)reallocate_vet(
+      vet_passageiros[i].sobrenome, strlen(vet_passageiros[i].sobrenome) + 1);
   }
 
   fclose(arq);
