@@ -138,14 +138,12 @@ void consultar_reserva(passageiro *vet_passageiros, int num_passageiros) {
    *
    * @return     void
    */
-  int indice = 0;
+  int indice; // Incremento conforme o passageiro não corresponde ao CPF
   char cpf_consultado[15];
 
   scanf("%s", cpf_consultado);
-  for (int i = 0; i < num_passageiros; i++) {
-    if (strcmp(cpf_consultado, vet_passageiros[indice].cpf) != 0)
-      indice++;
-    else
+  for (int indice = 0; indice < num_passageiros; indice++) {
+    if (strcmp(cpf_consultado, vet_passageiros[indice].cpf) == 0)
       break;
   }
   printf_passageiro(vet_passageiros[indice]);
