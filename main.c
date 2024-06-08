@@ -196,7 +196,7 @@ void modificar_reserva(passageiro *vet_passageiros, int num_passageiros) {
     sizeof(vet_passageiros[indice].nome) + 1);
   vet_passageiros[indice].sobrenome = reallocate_vet(
     vet_passageiros[indice].sobrenome,
-  sizeof(vet_passageiros[indice].sobrenome) + 1);
+    sizeof(vet_passageiros[indice].sobrenome) + 1);
 
   // Imprime os novos dados
   printf("Reserva modificada:\n");
@@ -261,7 +261,8 @@ passageiro *carregar_lista_passgeiros(passageiro *vet_passageiros, char path[],
    *            que contém informações de passageiros. O arquivo deve estar
    *            no formato:
    *            nome sobrenome cpf dia mes ano num_voo assento classe preco
-   * origem destino O vetor de passageiros é alocado dinamicamente e retornado
+   *            origem destino 
+   *             O vetor de passageiros é alocado dinamicamente e retornado
    *            para o usuário.
    *
    * @param      passageiro *vet_passageiros  Vetor de passageiros
