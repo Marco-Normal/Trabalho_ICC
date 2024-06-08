@@ -235,10 +235,10 @@ int cancelar_reserva(passageiro *vet_passageiros, int num_passageiros) {
     dos nome e sobrenome do passageiro i+1 */
     vet_passageiros[i].nome = (char *)reallocate_vet(
       vet_passageiros[i + 1].nome,
-      sizeof(vet_passageiros[i + 1].nome) + 1);
+      strlen(vet_passageiros[i + 1].nome) + 1);
     vet_passageiros[i].sobrenome = (char *)reallocate_vet(
       vet_passageiros[i].sobrenome,
-      sizeof(vet_passageiros[i + 1].sobrenome) + 1);
+      strlen(vet_passageiros[i + 1].sobrenome) + 1);
 
     // Copia os dados do passageiro i+1 para o passageiro i
     strcpy(vet_passageiros[i].nome, vet_passageiros[i + 1].nome);
