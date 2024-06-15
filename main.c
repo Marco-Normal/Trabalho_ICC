@@ -84,6 +84,9 @@ int main(void) {
     } else if (strcmp(comando, "FD") == 0) {
       fechar_dia(vet_passageiros, num_passageiros, PATH_VOO);
       flag = 0;
+    } else if (strcmp(comando, "FV") == 0) {
+      fechamento_voo(vet_passageiros, num_passageiros, PATH_VOO);
+      flag = 0;
     }
   }
   return 0;
@@ -176,7 +179,7 @@ void consultar_reserva(passageiro *vet_passageiros, int num_passageiros) {
 
   scanf("%s", cpf_consultado);
 
-  for (; indice < num_passageiros; indice++) {
+  for (indice = 0; indice < num_passageiros; indice++) {
     if (strcmp(cpf_consultado, vet_passageiros[indice].cpf) == 0) {
       printf_passageiro(vet_passageiros[indice]);
       break;
@@ -417,6 +420,7 @@ void fechar_dia(passageiro *vet_passageiros, int N, char path[]) {
     total += vet_passageiros[i].preco;
   }
   printf("Total arrecadado: %.2f\n", total);
+  printf_underline();
   free_vet((void *)vet_passageiros, N);
   return;
 }
