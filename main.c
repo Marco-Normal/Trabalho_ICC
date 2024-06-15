@@ -44,7 +44,7 @@ int main(void) {
   passageiro *vet_passageiros;
   int num_passageiros = 0;
   int flag = 1;
-  vet_passageiros = (passageiro *)allocate_vet(0);
+  vet_passageiros = NULL;
   int voo_aberto = checar_se_voo_aberto(PATH_VOO);
   while (!voo_aberto) {
     opcao_menu(comando);
@@ -421,7 +421,7 @@ void fechar_dia(passageiro *vet_passageiros, int N, char path[]) {
   }
   printf("Total arrecadado: %.2f\n", total);
   printf_underline();
-  free_vet((void *)vet_passageiros, N);
+  free_vet(vet_passageiros, N);
   return;
 }
 
@@ -443,6 +443,7 @@ int checar_se_voo_aberto(char path[]) {
   if (arq == NULL) {
     flag = 0;
   } else {
+    fclose(arq);
     flag = 1;
   }
   return flag;
@@ -510,6 +511,7 @@ int checar_capacidade(int num_passageiros, char path[]) {
                        *que no nosso caso é o número
                        *já alocado */
   fscanf(arq, "%d", &capacidade_total);
+  fclose(arq);
   if (num_passageiros >= capacidade_total) {
     return 0;
   } else {
