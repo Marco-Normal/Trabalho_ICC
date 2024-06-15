@@ -21,7 +21,7 @@ typedef struct {
 void *allocate_vet(int N);
 void *reallocate_vet(void *vet, int N);
 void opcao_menu(char comando[3]);
-void abertura_voo();
+void abertura_voo(char path[]);
 passageiro *registrar_passageiro(passageiro *vet_passageiros, int N,
                                  char path[], int *capacidade);
 void consultar_reserva(passageiro *vet_passageiros, int num_passageiros);
@@ -33,11 +33,11 @@ void printf_passageiro(passageiro pass);
 passageiro *carregar_lista_passgeiros(passageiro *vet_passageiros, char path[],
                                       int *N);
 void fechar_dia(passageiro *vet_passageiros, int N, char path[]);
-int checar_se_voo_aberto(char path[]);
+int checar_se_voo(char path[]);
 void free_vet(passageiro *tot_passageiros, int num_passageiros);
 void fechamento_voo(passageiro *tot_passageiros, int num_passageiros,
                     char path[]);
-int checar_capacidade(int num_passageiros, char path[]);
+int checar_voo(int num_passageiros, char path[]);
 
 int main(void) {
   char comando[3];
@@ -45,23 +45,32 @@ int main(void) {
   int num_passageiros = 0;
   int flag = 1;
   vet_passageiros = NULL;
-  int voo_aberto = checar_se_voo_aberto(PATH_VOO);
+  int voo_aberto = checar_se_voo(PATH_VOO);
+  /* Checa se tem um voo aberto */
   while (!voo_aberto) {
     opcao_menu(comando);
     if (strcmp(comando, "AV") == 0) {
-      abertura_voo();
+      abertura_voo(PATH_VOO);
       voo_aberto = 1;
     }
   }
+  /* Se tiver um voo aberto, carrega
+    os passageeiros para a memória */
   if (voo_aberto) {
     vet_passageiros =
         carregar_lista_passgeiros(vet_passageiros, PATH_VOO, &num_passageiros);
   }
-  int capacidade = checar_capacidade(num_passageiros, PATH_VOO);
-  if (capacidade == 0) {
+  /* Checa a disponibilidade do voo. No header o voo tem que estar aberto,
+    ou seja, tem que ser 1, e o num de passageiros tem que ser menor que
+   a capacidade total */
+  int disp_voo = checar_voo(num_passageiros, PATH_VOO);
+  /* Se o voo estiver fechado, ele fecha o voo e imprime os passageiros
+    e o total arrecadado. Ele só tem a disponibilidade de CR e FD */
+  if (disp_voo == 0) {
     fechamento_voo(vet_passageiros, num_passageiros, PATH_VOO);
     flag = 1;
     while (flag) {
+      opcao_menu(comando);
       if (strcmp(comando, "CR") == 0) {
         consultar_reserva(vet_passageiros, num_passageiros);
       } else if (strcmp(comando, "FD") == 0) {
@@ -70,13 +79,13 @@ int main(void) {
       }
     }
   }
-  while (flag && voo_aberto && capacidade) {
+  /* Se o voo estiver aberto, ele tem todas as opções */
+  while (flag && voo_aberto && disp_voo) {
     opcao_menu(comando);
     if (strcmp(comando, "RR") == 0) {
       vet_passageiros = registrar_passageiro(vet_passageiros, num_passageiros,
-                                             PATH_VOO, &capacidade);
-      num_passageiros++; /* Pensar se vale mais a pena colocar a flag aqui
-                          *também ou se é melhor fazer como na main antiga */
+                                             PATH_VOO, &disp_voo);
+      num_passageiros++;
     } else if (strcmp(comando, "CR") == 0) {
       consultar_reserva(vet_passageiros, num_passageiros);
     } else if (strcmp(comando, "MR") == 0) {
@@ -87,6 +96,7 @@ int main(void) {
     } else if (strcmp(comando, "FV") == 0) {
       fechamento_voo(vet_passageiros, num_passageiros, PATH_VOO);
       flag = 0;
+      free_vet(vet_passageiros, num_passageiros);
     }
   }
   return 0;
@@ -112,13 +122,14 @@ void *reallocate_vet(void *vet, int N) {
 
 void opcao_menu(char comando[3]) { scanf("%s", comando); }
 
-void abertura_voo() {
+void abertura_voo(char path[]) {
   FILE *arq;
-  arq = fopen(PATH_VOO, "w");
+  arq = fopen(path, "w");
   int assentos;
   float preco_eco, preco_exec;
   scanf("%d %f %f", &assentos, &preco_eco, &preco_exec);
-  fprintf(arq, "%d %d %.2f %.2f\n", 0, assentos, preco_eco, preco_exec);
+  fprintf(arq, "%d %d %d %.2f %.2f\n", 1, 0, assentos, preco_eco, preco_exec);
+  /* Esse 1 é para voo aberto */
   /* Esse 0 a mais vai ser a quantidade de assentos vendidos no dia.
    *Vamos modificar ela só no fechamendo do dia. A cada novo dia,
    *vamos pegar o valor de lá.*/
@@ -129,7 +140,7 @@ passageiro *registrar_passageiro(passageiro *vet_passageiros, int N,
                                  char path[], int *capacidade) {
   FILE *arq;
   arq = fopen(path, "a+");
-  *capacidade = checar_capacidade(N, PATH_VOO);
+  *capacidade = checar_voo(N, PATH_VOO);
   if (*capacidade == 0) {
     fechamento_voo(vet_passageiros, N, PATH_VOO);
     return vet_passageiros;
@@ -308,8 +319,10 @@ passageiro *carregar_lista_passgeiros(passageiro *vet_passageiros, char path[],
     printf("Erro ao abrir o arquivo\n");
     exit(1);
   }
+  fseek(arq, 2, SEEK_SET);
   fscanf(arq, "%d", N); // Lê o número de passageiros
   vet_passageiros = (passageiro *)allocate_vet(*N * sizeof(passageiro));
+  /* fseek(arq, 0, SEEK_SET); */
   fscanf(arq, "%*[^\n]"); // Ignora a primeira linha
   for (int i = 0; i < *N; i++) {
     vet_passageiros[i].nome = (char *)allocate_vet(50);
@@ -410,7 +423,8 @@ void fechar_dia(passageiro *vet_passageiros, int N, char path[]) {
    */
   FILE *arq;
   arq = fopen(path, "r+");
-  fseek(arq, 0, SEEK_SET);
+  fseek(arq, 2, SEEK_SET);
+  /* fscanf(arq, "%*d"); /\* pular o primeiro *\/ */
   fprintf(arq, "%d", N);
   fclose(arq);
 
@@ -425,7 +439,7 @@ void fechar_dia(passageiro *vet_passageiros, int N, char path[]) {
   return;
 }
 
-int checar_se_voo_aberto(char path[]) {
+int checar_se_voo(char path[]) {
   /**
    * @brief      Checa se o voo está aberto
    *
@@ -465,6 +479,8 @@ void fechamento_voo(passageiro *tot_passageiros, int N, char path[]) {
   FILE *arq;
   arq = fopen(path, "r+");
   fseek(arq, 0, SEEK_SET);
+  fprintf(arq, "%d", 0);
+  fseek(arq, 2, SEEK_SET);
   fprintf(arq, "%d", N);
   fclose(arq);
   float total = 0; // Valor total
@@ -475,7 +491,6 @@ void fechamento_voo(passageiro *tot_passageiros, int N, char path[]) {
   }
   printf("Valor Total: %.2f\n", total);
   printf_underline();
-  free_vet(tot_passageiros, N);
 }
 
 void free_vet(passageiro *tot_passageiros, int num_passageiros) {
@@ -503,13 +518,18 @@ void free_vet(passageiro *tot_passageiros, int num_passageiros) {
   return;
 }
 
-int checar_capacidade(int num_passageiros, char path[]) {
+int checar_voo(int num_passageiros, char path[]) {
   FILE *arq;
   int capacidade_total;
+  int flag = 0;
   arq = fopen(path, "r+");
-  fscanf(arq, "%*d"); /* ignora o primeiro valor
-                       *que no nosso caso é o número
-                       *já alocado */
+  fscanf(arq, "%d", &flag); /* ignora o primeiro valor
+                             *que no nosso caso é o número
+                             *já alocado */
+  if (!flag) {
+    return flag;
+  }
+  fscanf(arq, "%*d");
   fscanf(arq, "%d", &capacidade_total);
   fclose(arq);
   if (num_passageiros >= capacidade_total) {
