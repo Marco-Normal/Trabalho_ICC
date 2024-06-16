@@ -92,7 +92,6 @@ int main(void) {
     } else if (strcmp(comando, "MR") == 0) {
       modificar_reserva(vet_passageiros, num_passageiros);
     } else if (strcmp(comando, "FD") == 0) {
-      printf("Num passageiros = %d", num_passageiros);
       fechar_dia(vet_passageiros, num_passageiros, PATH_VOO);
       flag = 0;
     } else if (strcmp(comando, "CA") == 00) {
@@ -247,7 +246,7 @@ void modificar_reserva(passageiro *vet_passageiros, int num_passageiros) {
                      strlen(vet_passageiros[indice].sobrenome) + 1);
 
   // Imprime os novos dados
-  printf("Reserva modificada:\n");
+  printf("Reserva Modificada:\n");
   printf_passageiro(vet_passageiros[indice]);
 }
 
@@ -460,10 +459,11 @@ void fechar_dia(passageiro *vet_passageiros, int N, char path[]) {
             vet_passageiros[i].num_voo, vet_passageiros[i].assento,
             vet_passageiros[i].classe, vet_passageiros[i].preco,
             vet_passageiros[i].origem, vet_passageiros[i].destino);
-    printf_voo(vet_passageiros[i]);
     total += vet_passageiros[i].preco;
   }
-  printf("Total arrecadado: %.2f\n", total);
+  printf("Fechamento do dia:\n");
+  printf("Quantidade de reservas: %d\n", N);
+  printf("Posição: %.2f\n", total);
   printf_underline();
   rename("tmp", path);
   fclose(arq);
@@ -534,7 +534,7 @@ void fechamento_voo(passageiro *tot_passageiros, int N, char path[]) {
   arq = fopen(path, "a+");
   fprintf(arq, "\n");
   float total = 0; // Valor total
-  printf("Voo Fechado!\n");
+  printf("Voo Fechado!\n\n");
   for (int i = 0; i < N; i++) {
     fprintf(arq, "%s %s %s %d %d %d %s %s %s %.2f %s %s\n",
             tot_passageiros[i].nome, tot_passageiros[i].sobrenome,
@@ -544,6 +544,7 @@ void fechamento_voo(passageiro *tot_passageiros, int N, char path[]) {
             tot_passageiros[i].classe, tot_passageiros[i].preco,
             tot_passageiros[i].origem, tot_passageiros[i].destino);
     printf_voo(tot_passageiros[i]);
+    printf("\n");
     total += tot_passageiros[i].preco;
   }
   printf("Valor Total: %.2f\n", total);
