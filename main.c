@@ -1,3 +1,138 @@
+/**
+ Trabalho de Introdução à Ciência da Computação I
+ Professor: Rudinei Goularte
+ Alunos:
+ Marco Túlio Mello Silva - 12548657
+ *********************************
+ *********************************
+
+ O programa é um sistema de gerenciamento de voos. No caso,
+ apenas 1 voo. O programa tem as seguintes funcionalidades:
+  - Abertura de voo
+  - Registro de passageiros
+  - Consulta de reserva
+  - Modificação de reserva
+  - Cancelamento de reserva
+  - Fechamento do dia
+  - Fechamento do voo
+
+  O programa é dividido em funções, cada uma com uma funcionalidade
+  específica.
+
+Os passageiros são chamados salvos em um arquivo chamado voos.txt.
+A estrutura do arquivo é a seguinte:
+  - Header: Int(0,1), Int, Int, Float, Float
+     + Primeiro Int: 0 para voo fechado, 1 para voo aberto
+     + Segundo Int: Número de assentos reservados
+     + Terceiro Int: Número de assentos totais
+     + Float: Preço da econômica
+     + Float: Preço da executiva
+  - Corpo: Nome, Sobrenome, CPF, Dia, Mês, Ano, Número do Voo, Assento, Classe,
+           Preço, Origem, Destino
+      + Passaeiros registrados, cada um em uma linha
+
+A cada fechamento de dia, ou voo, o programa descarrega o vetor de passageiros
+na memória, para o arquivo. Para isso, ele copia o header do arquivo anterior
+para um arquivo temporário, que será o novo arquivo principal, e um a um
+escreve os passageiros.
+Essa necessidade de copiar para outro arquivo vem da função de cancelar
+passageiro, para que não fique um espaço vazio no arquivo.
+
+* O flow do programa
+O programa, inicialmente checa se já existe um arquivo de voo,
+sendo necessário isso para carregar os passageiros para a memória.
+Se não tiver, ele entra num loop que só permite o usuário a opção
+de AV. Isso é necessário para não acontecer nenhum problema de
+tentar consultar um passageiro, sendo que nosso vetor nem alocado está.
+
+Uma vez com o arquivo feito, ele carrega os passageiros para a memória.
+Com o arquivo carregado, ele checa se o voo está aberto, ou seja, se
+o header do arquivo é 1. Se não estiver, ele entra no loop de voo fechado
+que só permite os comandos CR e FD. Caso o voo esteja aberto, ele entra
+no loop de voo aberto, que permite todos os comandos.
+
+Caso Feche o dia, ele coloca todos os passageiros no arquivo, e imprime
+o total arrecadado, junto com a quantidade de passageiros alocados. Caso
+feche o voo, ele também coloca todos no arquivo e imprime os dados necessários
+de cada passageiro.
+
+* Struct de Passageiro
+A struct de passageiro é feito com todos os dados necessários para um
+passageiro. Os nomes são alocados dinamicamente, pois não sabemos o tamanho
+deles. CPF, número do voo, assento, classe, origem e destino são fixos, pois
+sabemos o tamanho deles.
+
+* Funções
+- allocate_vet: Aloca um vetor de N posições. Feito de forma genérica
+para poder se reutilizado mais facilmente
+- reallocate_vet: Realoca um vetor de N posições. Feito de forma genérica
+para poder se reutilizado mais facilmente
+- opcao_menu: Recebe um comando do usuário. Função simples.
+- abertura_voo: Abre o voo, escrevendo no arquivo dado pelo
+argumento path[]. Ele lê a quantidade de assentos, bem como
+o valor da passagem econômica e executiva, nessa ordem. Os tipos
+dessas variáveis são int, float e float, respectivamente. No arquivo
+ele também escreve algumas informações auxiliares.
+- registrar_passageiro: Registra um passageiro no arquivo. Ele
+recebe um vetor de passageiros, o número de passageiros, o path
+do arquivo e a capacidade do voo. Ele aloca um novo passageiro,
+caso tenha capacidade. Se não tiver capacidade, ele automaticamente
+fecha o voo. Caso tenha capacidade, ele aloca estáticamente e
+arbitráriamente o nome e sobrenome do passageiro e lê todos os
+inputs. Uma vez lido, ele realoca o nome e sobrenome para o tamanho
+correto. Ele retorna o vetor de passageiros.
+- consultar_reserva: Consulta a reserva de um passageiro. Ele
+recebe um vetor de passageiros e o número de passageiros. Dentro
+da função ele lê o CPF do passageiro e imprime os dados do passageiro
+com o CPF correspondente. Para achar o CPF, ele faz uma comparação
+de strings.
+- modificar_reserva: Modifica a reserva de um passageiro. Recebe
+o CPF de busca e os novos campos do passageiro. Realiza a busca, uma
+vez achado, faz a realocação dos nomes e sobrenomes e copia os novos
+dados para o passageiro.
+- cancelar_reserva: Cancela a reserva de um passageiro. Recebe o CPF
+do passageiro a ser cancelado. Realiza a busca, uma vez achado, ele
+copia os dados do passageiro seguinte para o passageiro atual. Realiza
+essa mudança para não ficar nenhum buraco no nosso vetor.
+- printf_passageiro: Printa um passageiro. Recebe um passageiro e
+printa todos os dados dele. Ele é chamado em consultar reserva e
+modificar reserva.
+- printf_underline: Printa underline. Printa 50 underline, para
+separar os comandos.
+- printf_voo: Printa apenas as informações pertinentes para o voo.
+Ou seja, nome, cpf e assento
+- fechar_dia: Fecha o dia. Recebe um vetor de passageiros, o número
+de passageiros e o path do arquivo. Ele atualiza o arquivo com o
+número de passageiros, imprime os passageiros e o total arrecadado.
+- checar_se_voo_existe: Checa se o voo está aberto. Recebe o path do arquivo
+e retorna 1 se o voo estiver aberto, 0 se estiver fechado.
+- fechamento_voo: Fecha o voo. Recebe um vetor de passageiros, o número
+de passageiros e o path do arquivo. Ele atualiza o arquivo com o
+número de passageiros, imprime os passageiros e o total arrecadado.
+Ela modifica no header o valor que checamos para ver se o voo está
+ou não aberto
+- free_vet: Libera a memória alocada para o vetor de passageiros.
+Especifica para o vetor de passageiros, porém, é o único que alocamos
+dinâmicamente.
+- carregar_lista_passgeiros: Carrega a lista de passageiros de um arquivo.
+Recebe um vetor de passageiros, o path do arquivo e o número de passageiros.
+Ele lê o arquivo e aloca dinamicamente os nomes e sobrenomes dos passageiros.
+Ele retorna o vetor de passageiros.
+- checar_voo: Checa a disponibilidade do voo. Recebe o número de passageiros
+e o path do arquivo. Ele checa se o voo está aberto e se o número de passageiros
+é menor que a capacidade total. Retorna 1 se o voo estiver aberto e a capacidade
+não estiver excedida, 0 caso contrário.
+
+* Variáveis
+- comando: Variável que armazena o comando do usuário
+- vet_passageiros: Vetor de passageiros
+- num_passageiros: Número de passageiros
+- flag: Variável de controle para os loops
+- voo_aberto: Variável que checa se o voo está aberto
+- disp_voo: Variável que checa a disponibilidade do voo
+- v: Struct secundária que armazena as informações do voo,
+usada apenas para facilitar a cópia de um arquivo para outro
+ */
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -5,25 +140,25 @@
 #define PATH_VOO "voos.txt"
 
 typedef struct {
-  char *nome;      // nome do passageiro. Não sabemos o tamanho do nome
-  char *sobrenome; // sobrenome do passageiro.
-  char cpf[15];    // CPF do passageiro
+  char *nome;
+  char *sobrenome;
+  char cpf[15]; /* Estático pois todos tem o mesmo tamanho */
   int dia;
   int mes;
   int ano;
-  char num_voo[5]; // número do voo
+  char num_voo[5]; /* Estático pois todos tem o mesmo tamanho */
   char assento[4];
-  char classe[10]; // 0 para econômica e 1 para executiva
+  char classe[10]; /* Estático pois todos tem o mesmo tamanho */
   float preco;
-  char origem[4];  // aeroporto de origem
-  char destino[4]; // aeroporto de destino
+  char origem[4];  /* Estático pois todos tem o mesmo tamanho */
+  char destino[4]; /* Estático pois todos tem o mesmo tamanho */
 } passageiro;
 void *allocate_vet(int N);
 void *reallocate_vet(void *vet, int N);
 void opcao_menu(char comando[3]);
 void abertura_voo(char path[]);
 passageiro *registrar_passageiro(passageiro *vet_passageiros, int N,
-                                 char path[], int *capacidade);
+                                 char path[], int *disponibilidade);
 void consultar_reserva(passageiro *vet_passageiros, int num_passageiros);
 void modificar_reserva(passageiro *vet_passageiros, int num_passageiros);
 int cancelar_reserva(passageiro *vet_passageiros, int num_passageiros);
@@ -33,7 +168,7 @@ void printf_passageiro(passageiro pass);
 passageiro *carregar_lista_passgeiros(passageiro *vet_passageiros, char path[],
                                       int *N);
 void fechar_dia(passageiro *vet_passageiros, int N, char path[]);
-int checar_se_voo(char path[]);
+int checar_se_voo_existe(char path[]);
 void free_vet(passageiro *tot_passageiros, int num_passageiros);
 void fechamento_voo(passageiro *tot_passageiros, int num_passageiros,
                     char path[]);
@@ -45,7 +180,7 @@ int main(void) {
   int num_passageiros = 0;
   int flag = 1;
   vet_passageiros = NULL;
-  int voo_aberto = checar_se_voo(PATH_VOO);
+  int voo_aberto = checar_se_voo_existe(PATH_VOO);
   /* Checa se tem um voo aberto */
   while (!voo_aberto) {
     opcao_menu(comando);
@@ -55,7 +190,7 @@ int main(void) {
     }
   }
   /* Se tiver um voo aberto, carrega
-    os passageeiros para a memória */
+    os passageiros para a memória */
   if (voo_aberto) {
     vet_passageiros =
         carregar_lista_passgeiros(vet_passageiros, PATH_VOO, &num_passageiros);
@@ -94,8 +229,7 @@ int main(void) {
       fechar_dia(vet_passageiros, num_passageiros, PATH_VOO);
       flag = 0;
     } else if (strcmp(comando, "CA") == 00) {
-      cancelar_reserva(vet_passageiros, num_passageiros);
-      num_passageiros--;
+      num_passageiros = cancelar_reserva(vet_passageiros, num_passageiros);
     } else if (strcmp(comando, "FV") == 0) {
       fechamento_voo(vet_passageiros, num_passageiros, PATH_VOO);
       flag = 0;
@@ -106,6 +240,20 @@ int main(void) {
 }
 
 void *allocate_vet(int N) {
+
+  /**
+   * @brief      Alocação de memória
+   *
+   * @details    Recebe N, que é o número de
+   * bytes que queremos alocar. Ele aloca
+   * a memória, caso tenha alocado com sucesso
+   * retorna o vetor, se não, retorna um erro
+   *
+   * @param      int N  Número de bytes
+   *
+   * @return     void*  Vetor alocado
+   */
+
   void *vet = (void *)malloc(N);
   if (vet == NULL) {
     printf("Erro ao alocar memória\n");
@@ -115,6 +263,21 @@ void *allocate_vet(int N) {
 }
 
 void *reallocate_vet(void *vet, int N) {
+
+  /**
+   * @brief      Realocação de Vet
+   *
+   * @details    Realiza a realocão de um vetor
+   * void *vet para N bytes. Caso tenha realocado
+   * com sucesso, retorna o vetor, se não, retorna
+   * um erro
+   *
+   * @param      void *vet  vetor que vamos realocar
+   * @param      int N      Número de bytes
+   *
+   * @return     void *vet_aux  Vetor realocado
+   */
+
   void *vet_aux = (void *)realloc(vet, N);
   if (vet_aux == NULL) {
     printf("Erro ao realocar memória\n");
@@ -123,9 +286,40 @@ void *reallocate_vet(void *vet, int N) {
   return vet_aux;
 }
 
-void opcao_menu(char comando[3]) { scanf("%s", comando); }
+void opcao_menu(char comando[3]) {
+
+  /**
+   * @brief      Captura a entrada do usuário
+   *
+   * @details    Lê a entrada do usuário e coloca esse
+   * valor no argumento passado.
+   *
+   * @param      char comando[3]  Vetor que vamos colocar
+   * a entrada do usuário
+   *
+   * @return     void
+   */
+
+  scanf("%s", comando);
+}
 
 void abertura_voo(char path[]) {
+
+  /**
+   * @brief      Realiza a abertura de umvoo
+   *
+   * @details    Abre o voo, escrevendo na primeira linha
+   * do arquivo com nome path[], informações dadas pelo usuário,
+   * que são o número de assentos, o valor da classe econômica e
+   * executiva. Ele escreve no arquivo, o número 1, que é para
+   * indicar que o voo está aberto e 0, sendo a quantidade alocada de
+   * assentos
+   *
+   * @param      char path[]  Nome do arquivo
+   *
+   * @return     void
+   */
+
   FILE *arq;
   arq = fopen(path, "w");
   int assentos;
@@ -140,12 +334,31 @@ void abertura_voo(char path[]) {
 }
 
 passageiro *registrar_passageiro(passageiro *vet_passageiros, int N,
-                                 char path[], int *capacidade) {
-  FILE *arq;
-  arq = fopen(path, "a+");
-  *capacidade = checar_voo(N, PATH_VOO);
-  if (*capacidade == 0) {
+                                 char path[], int *disponibilidade) {
+
+  /**
+   * @brief      Registra um passageiro para o voo
+   *
+   * @details    Realiza o registro do passageiro para o voo.
+   * Ele lê os dados do passageiro e aloca dinamicamente o nome
+   * e sobrenome do passageiro. Antes de alocar, é checado se
+   * o voo permite mais passageiros. Caso não, ele fecha automaticamente
+   * o voo. Caso permita, ele lê inputs do usuário e coloca em uma
+   * nova instância dentro do *vet_passageiros. Ele retorna o vetor
+   * com o novo passageiro
+   *
+   * @param      passageiro *vet_passageiros Vetor de passageiros naquele voo
+   * @param      int N                      Número de passageiros
+   * @param      char path[]                Nome do arquivo
+   * @param      int *disponibilidade       Disponibilidade do voo
+   *
+   * @return     passageiro *
+   */
+
+  *disponibilidade = checar_voo(N, PATH_VOO);
+  if (*disponibilidade == 0) {
     fechamento_voo(vet_passageiros, N, PATH_VOO);
+    free_vet(vet_passageiros, N);
     return vet_passageiros;
   } else {
     vet_passageiros = (passageiro *)reallocate_vet(
@@ -159,18 +372,12 @@ passageiro *registrar_passageiro(passageiro *vet_passageiros, int N,
           vet_passageiros[N].assento, vet_passageiros[N].classe,
           &vet_passageiros[N].preco, vet_passageiros[N].origem,
           vet_passageiros[N].destino);
-    vet_passageiros[N].nome = (char *)reallocate_vet(
-        vet_passageiros[N].nome, strlen(vet_passageiros[N].nome) + 1);
+    vet_passageiros[N].nome =
+        (char *)reallocate_vet(/* Realocação para o tamanho certo */
+                               vet_passageiros[N].nome,
+                               strlen(vet_passageiros[N].nome) + 1);
     vet_passageiros[N].sobrenome = (char *)reallocate_vet(
         vet_passageiros[N].sobrenome, strlen(vet_passageiros[N].sobrenome) + 1);
-    /* fprintf(arq, "%s %s %s %d %d %d %s %s %s %.2f %s %s\n", */
-    /*         vet_passageiros[N].nome, vet_passageiros[N].sobrenome, */
-    /*         vet_passageiros[N].cpf, vet_passageiros[N].dia, */
-    /*         vet_passageiros[N].mes, vet_passageiros[N].ano, */
-    /*         vet_passageiros[N].num_voo, vet_passageiros[N].assento, */
-    /*         vet_passageiros[N].classe, vet_passageiros[N].preco, */
-    /*         vet_passageiros[N].origem, vet_passageiros[N].destino); */
-    fclose(arq);
     return vet_passageiros;
   }
 }
@@ -325,7 +532,6 @@ passageiro *carregar_lista_passgeiros(passageiro *vet_passageiros, char path[],
   fseek(arq, 2, SEEK_SET);
   fscanf(arq, "%d", N); // Lê o número de passageiros
   vet_passageiros = (passageiro *)allocate_vet(*N * sizeof(passageiro));
-  /* fseek(arq, 0, SEEK_SET); */
   fscanf(arq, "%*[^\n]"); // Ignora a primeira linha
   for (int i = 0; i < *N; i++) {
     vet_passageiros[i].nome = (char *)allocate_vet(50);
@@ -431,18 +637,18 @@ void fechar_dia(passageiro *vet_passageiros, int N, char path[]) {
     float econo;
     float exec;
   } voo;
-  voo v;
+  voo v; /* Struct auxiliar para fazer a cópia */
   FILE *arq, *tmp;
-  tmp = fopen(path, "r+");
-  arq = fopen("tmp", "w");
+  tmp = fopen(path, "r+"); /* Vamos copiar do arquivo original */
+  arq = fopen("tmp", "w"); /* para um arquivo temporário, que depois virará
+                             o original */
   fscanf(tmp, "%d %d %d %f %f", &v.aberto, &v.vendidos, &v.ass_totais, &v.econo,
          &v.exec);
   fclose(tmp);
   fprintf(arq, "%d %d %d %.2f %.2f", v.aberto, v.vendidos, v.ass_totais,
           v.econo, v.exec);
-  fseek(arq, 2, SEEK_SET);
-  /* fscanf(arq, "%*d"); /\* pular o primeiro *\/ */
-  fprintf(arq, "%d", N);
+  fseek(arq, 2, SEEK_SET); /* Pula a flag se o voo ta aberto ou não */
+  fprintf(arq, "%d", N);   /* Pega o número de passageiros */
   fclose(arq);
   rename("tmp", path);
   arq = fopen(path, "a+");
@@ -468,9 +674,9 @@ void fechar_dia(passageiro *vet_passageiros, int N, char path[]) {
   return;
 }
 
-int checar_se_voo(char path[]) {
+int checar_se_voo_existe(char path[]) {
   /**
-   * @brief      Checa se o voo está aberto
+   * @brief      Checa se o voo está disponível
    *
    * @details    Abre o arquivo de voos e checa se o voo
    * está aberto ou fechado. Se estiver aberto, retorna 1,
@@ -512,7 +718,7 @@ void fechamento_voo(passageiro *tot_passageiros, int N, char path[]) {
     float econo;
     float exec;
   } voo;
-  voo v;
+  voo v; /* Similar à função de fechar dia */
   FILE *arq, *tmp;
   tmp = fopen(path, "r+");
   arq = fopen("tmp", "w");
@@ -524,7 +730,6 @@ void fechamento_voo(passageiro *tot_passageiros, int N, char path[]) {
           v.econo, v.exec);
   fseek(arq, 0, SEEK_SET);
   fseek(arq, 2, SEEK_SET);
-  /* fscanf(arq, "%*d"); /\* pular o primeiro *\/ */
   fprintf(arq, "%d", N);
   fclose(arq);
   rename("tmp", path);
@@ -575,6 +780,18 @@ void free_vet(passageiro *tot_passageiros, int num_passageiros) {
 }
 
 int checar_voo(int num_passageiros, char path[]) {
+
+  /**
+   * @brief      Checa se o voo esta disponível
+   *
+   * @details    Checa se a flag do voo está disponível
+   * e se existe espaço ou não para registrar mais passageiros
+   *
+   * @param      int num_passageiros número atual de passageiros
+   * @param      char path[] nome do aquivo
+   * @return     int 1 se ok, 0 se não
+   */
+
   FILE *arq;
   int capacidade_total;
   int flag = 0;
