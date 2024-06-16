@@ -19,7 +19,7 @@
   O programa é dividido em funções, cada uma com uma funcionalidade
   específica.
 
-Os passageiros são chamados salvos em um arquivo chamado voos.txt.
+Os passageiros são salvos em um arquivo chamado voos.txt.
 A estrutura do arquivo é a seguinte:
   - Header: Int(0,1), Int, Int, Float, Float
      + Primeiro Int: 0 para voo fechado, 1 para voo aberto
@@ -29,7 +29,7 @@ A estrutura do arquivo é a seguinte:
      + Float: Preço da executiva
   - Corpo: Nome, Sobrenome, CPF, Dia, Mês, Ano, Número do Voo, Assento, Classe,
            Preço, Origem, Destino
-      + Passaeiros registrados, cada um em uma linha
+      + Passageiros registrados, cada um em uma linha
 
 A cada fechamento de dia, ou voo, o programa descarrega o vetor de passageiros
 na memória, para o arquivo. Para isso, ele copia o header do arquivo anterior
@@ -41,9 +41,9 @@ passageiro, para que não fique um espaço vazio no arquivo.
 * O flow do programa
 O programa, inicialmente checa se já existe um arquivo de voo,
 sendo necessário isso para carregar os passageiros para a memória.
-Se não tiver, ele entra num loop que só permite o usuário a opção
+Se não tiver, ele entra num loop que só permite ao usuário a opção
 de AV. Isso é necessário para não acontecer nenhum problema de
-tentar consultar um passageiro, sendo que nosso vetor nem alocado está.
+tentar consultar um passageiro, sem que o vetor esteja sequer alocado.
 
 Uma vez com o arquivo feito, ele carrega os passageiros para a memória.
 Com o arquivo carregado, ele checa se o voo está aberto, ou seja, se
@@ -112,8 +112,8 @@ número de passageiros, imprime os passageiros e o total arrecadado.
 Ela modifica no header o valor que checamos para ver se o voo está
 ou não aberto
 - free_vet: Libera a memória alocada para o vetor de passageiros.
-Especifica para o vetor de passageiros, porém, é o único que alocamos
-dinâmicamente.
+Específica para o vetor de passageiros, porém, é o único que alocamos
+dinamicamente.
 - carregar_lista_passgeiros: Carrega a lista de passageiros de um arquivo.
 Recebe um vetor de passageiros, o path do arquivo e o número de passageiros.
 Ele lê o arquivo e aloca dinamicamente os nomes e sobrenomes dos passageiros.
