@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <threads.h>
 
 #define PATH_VOO "voos.txt"
 
@@ -91,8 +92,12 @@ int main(void) {
     } else if (strcmp(comando, "MR") == 0) {
       modificar_reserva(vet_passageiros, num_passageiros);
     } else if (strcmp(comando, "FD") == 0) {
+      printf("Num passageiros = %d", num_passageiros);
       fechar_dia(vet_passageiros, num_passageiros, PATH_VOO);
       flag = 0;
+    } else if (strcmp(comando, "CA") == 00) {
+      cancelar_reserva(vet_passageiros, num_passageiros);
+      num_passageiros--;
     } else if (strcmp(comando, "FV") == 0) {
       fechamento_voo(vet_passageiros, num_passageiros, PATH_VOO);
       flag = 0;
@@ -160,13 +165,13 @@ passageiro *registrar_passageiro(passageiro *vet_passageiros, int N,
         vet_passageiros[N].nome, strlen(vet_passageiros[N].nome) + 1);
     vet_passageiros[N].sobrenome = (char *)reallocate_vet(
         vet_passageiros[N].sobrenome, strlen(vet_passageiros[N].sobrenome) + 1);
-    fprintf(arq, "%s %s %s %d %d %d %s %s %s %.2f %s %s\n",
-            vet_passageiros[N].nome, vet_passageiros[N].sobrenome,
-            vet_passageiros[N].cpf, vet_passageiros[N].dia,
-            vet_passageiros[N].mes, vet_passageiros[N].ano,
-            vet_passageiros[N].num_voo, vet_passageiros[N].assento,
-            vet_passageiros[N].classe, vet_passageiros[N].preco,
-            vet_passageiros[N].origem, vet_passageiros[N].destino);
+    /* fprintf(arq, "%s %s %s %d %d %d %s %s %s %.2f %s %s\n", */
+    /*         vet_passageiros[N].nome, vet_passageiros[N].sobrenome, */
+    /*         vet_passageiros[N].cpf, vet_passageiros[N].dia, */
+    /*         vet_passageiros[N].mes, vet_passageiros[N].ano, */
+    /*         vet_passageiros[N].num_voo, vet_passageiros[N].assento, */
+    /*         vet_passageiros[N].classe, vet_passageiros[N].preco, */
+    /*         vet_passageiros[N].origem, vet_passageiros[N].destino); */
     fclose(arq);
     return vet_passageiros;
   }
@@ -421,20 +426,47 @@ void fechar_dia(passageiro *vet_passageiros, int N, char path[]) {
    *
    * @return     void, apenas imprime
    */
-  FILE *arq;
-  arq = fopen(path, "r+");
+  typedef struct {
+    int aberto;
+    int vendidos;
+    int ass_totais;
+    float econo;
+    float exec;
+  } voo;
+  voo v;
+  FILE *arq, *tmp;
+  tmp = fopen(path, "r+");
+  arq = fopen("tmp", "w");
+  fscanf(tmp, "%d %d %d %f %f", &v.aberto, &v.vendidos, &v.ass_totais, &v.econo,
+         &v.exec);
+  fclose(tmp);
+  fprintf(arq, "%d %d %d %.2f %.2f", v.aberto, v.vendidos, v.ass_totais,
+          v.econo, v.exec);
+  fseek(arq, 0, SEEK_SET);
   fseek(arq, 2, SEEK_SET);
   /* fscanf(arq, "%*d"); /\* pular o primeiro *\/ */
   fprintf(arq, "%d", N);
   fclose(arq);
+  rename("tmp", path);
+  arq = fopen(path, "a+");
+  fprintf(arq, "\n");
 
   float total = 0;
   for (int i = 0; i < N; i++) {
+    fprintf(arq, "%s %s %s %d %d %d %s %s %s %.2f %s %s\n",
+            vet_passageiros[i].nome, vet_passageiros[i].sobrenome,
+            vet_passageiros[i].cpf, vet_passageiros[i].dia,
+            vet_passageiros[i].mes, vet_passageiros[i].ano,
+            vet_passageiros[i].num_voo, vet_passageiros[i].assento,
+            vet_passageiros[i].classe, vet_passageiros[i].preco,
+            vet_passageiros[i].origem, vet_passageiros[i].destino);
     printf_voo(vet_passageiros[i]);
     total += vet_passageiros[i].preco;
   }
   printf("Total arrecadado: %.2f\n", total);
   printf_underline();
+  rename("tmp", path);
+  fclose(arq);
   free_vet(vet_passageiros, N);
   return;
 }
@@ -476,21 +508,47 @@ void fechamento_voo(passageiro *tot_passageiros, int N, char path[]) {
    *
    * @return     void
    */
-  FILE *arq;
-  arq = fopen(path, "r+");
+  typedef struct {
+    int aberto;
+    int vendidos;
+    int ass_totais;
+    float econo;
+    float exec;
+  } voo;
+  voo v;
+  FILE *arq, *tmp;
+  tmp = fopen(path, "r+");
+  arq = fopen("tmp", "w");
+  fscanf(tmp, "%d %d %d %f %f", &v.aberto, &v.vendidos, &v.ass_totais, &v.econo,
+         &v.exec);
+  v.aberto = 0;
+  fclose(tmp);
+  fprintf(arq, "%d %d %d %.2f %.2f", v.aberto, v.vendidos, v.ass_totais,
+          v.econo, v.exec);
   fseek(arq, 0, SEEK_SET);
-  fprintf(arq, "%d", 0);
   fseek(arq, 2, SEEK_SET);
+  /* fscanf(arq, "%*d"); /\* pular o primeiro *\/ */
   fprintf(arq, "%d", N);
   fclose(arq);
+  rename("tmp", path);
+  arq = fopen(path, "a+");
+  fprintf(arq, "\n");
   float total = 0; // Valor total
   printf("Voo Fechado!\n");
   for (int i = 0; i < N; i++) {
+    fprintf(arq, "%s %s %s %d %d %d %s %s %s %.2f %s %s\n",
+            tot_passageiros[i].nome, tot_passageiros[i].sobrenome,
+            tot_passageiros[i].cpf, tot_passageiros[i].dia,
+            tot_passageiros[i].mes, tot_passageiros[i].ano,
+            tot_passageiros[i].num_voo, tot_passageiros[i].assento,
+            tot_passageiros[i].classe, tot_passageiros[i].preco,
+            tot_passageiros[i].origem, tot_passageiros[i].destino);
     printf_voo(tot_passageiros[i]);
     total += tot_passageiros[i].preco;
   }
   printf("Valor Total: %.2f\n", total);
   printf_underline();
+  fclose(arq);
 }
 
 void free_vet(passageiro *tot_passageiros, int num_passageiros) {
