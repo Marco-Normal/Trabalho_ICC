@@ -1,7 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <threads.h>
 
 #define PATH_VOO "voos.txt"
 
@@ -441,7 +440,6 @@ void fechar_dia(passageiro *vet_passageiros, int N, char path[]) {
   fclose(tmp);
   fprintf(arq, "%d %d %d %.2f %.2f", v.aberto, v.vendidos, v.ass_totais,
           v.econo, v.exec);
-  fseek(arq, 0, SEEK_SET);
   fseek(arq, 2, SEEK_SET);
   /* fscanf(arq, "%*d"); /\* pular o primeiro *\/ */
   fprintf(arq, "%d", N);
@@ -465,7 +463,6 @@ void fechar_dia(passageiro *vet_passageiros, int N, char path[]) {
   printf("Quantidade de reservas: %d\n", N);
   printf("Posição: %.2f\n", total);
   printf_underline();
-  rename("tmp", path);
   fclose(arq);
   free_vet(vet_passageiros, N);
   return;
