@@ -4,7 +4,7 @@
  Alunos:
  Marco Túlio Mello Silva - 12548657
  Enzo Key Yamashita - 13678630
- *********************************
+ Samuel Filipe de Almeida Silva - 12558512
 
  O programa é um sistema de gerenciamento de voos. No caso,
  apenas 1 voo. O programa tem as seguintes funcionalidades:
